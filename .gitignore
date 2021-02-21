@@ -1,0 +1,9 @@
+build
+.gradle
+bin
+run
+logs
+libs
+.settings
+.vscode
+gradle.properties

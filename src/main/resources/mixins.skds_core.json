@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.skds.skds_core.mixins",
+  "target": "@env(DEFAULT)",  
+  "refmap": "mixins.skds_core.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "multithreading.PalettedContainerMixin",
+    "multithreading.ServerChunkProviderMixin",
+
+    "custom.WorldMixin",
+    "custom.BlockMixin"
+  ],
+  "client": [
+  ],
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
