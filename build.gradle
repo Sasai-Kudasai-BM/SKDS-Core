@@ -20,7 +20,6 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'maven-publish'
 
 version = '0.0.1-A'
 group = 'net.skds.core'
@@ -42,6 +41,7 @@ configurations {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.0.14'
     embed('org.spongepowered:mixin:0.8.2') { transitive = false }
+    compile fg.deobf(fileTree(dir: 'lib', include: ['*.jar']))
 }
 
 jar {
@@ -49,7 +49,6 @@ jar {
         attributes([
             //"TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
             "MixinConfigs": "mixins.skds_core.json",
-            "Specification-Title": "skds_core",
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
         ])

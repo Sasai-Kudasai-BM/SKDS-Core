@@ -1,13 +1,14 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.skds.skds_core.mixins",
+  "package": "net.skds.core.mixins",
   "target": "@env(DEFAULT)",  
   "refmap": "mixins.skds_core.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "multithreading.PalettedContainerMixin",
     "multithreading.ServerChunkProviderMixin",
+    "multithreading.MinecraftServerMixin",
 
     "custom.WorldMixin",
     "custom.BlockMixin"

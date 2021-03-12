@@ -25,7 +25,7 @@ displayName="SKDS Core" #mandatory
 # A URL for the "homepage" for this mod, displayed in the mod UI
 #displayURL="" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="assets.skds_core.png" #optional
+#logoFile="assets.skds_core.png" #optional
 # A text field displayed in the mod UI
 credits="Thanks for me and me and... also me <3" #optional
 # A text field displayed in the mod UI
@@ -54,6 +54,6 @@ Is it really needed?
 [[dependencies.skds_core]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.3]"
+    versionRange="[1.16.5]"
     ordering="NONE"
     side="BOTH"
