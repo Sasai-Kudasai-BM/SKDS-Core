@@ -6,6 +6,7 @@
   "refmap": "mixins.skds_core.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "multithreading.ChunkSectionMixin",
     "multithreading.PalettedContainerMixin",
     "multithreading.ServerChunkProviderMixin",
     "multithreading.MinecraftServerMixin",

@@ -127,7 +127,7 @@ public abstract class BasicExecutor implements Runnable {
 			chunksections[pos.getY() >> 4] = sec;
 		}
 		BlockState setted = chunksections[pos.getY() >> 4].setBlockState(pos.getX() & 15, pos.getY() & 15,
-				pos.getZ() & 15, state, false);
+				pos.getZ() & 15, state);
 
 		return setted;
 	}

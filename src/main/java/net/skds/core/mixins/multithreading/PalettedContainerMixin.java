@@ -16,19 +16,32 @@ public class PalettedContainerMixin<T> {
 
 	@Shadow
 	private final ReentrantLock lock = new ReentrantLock();
-	
-	@Inject(method = "lock", at = @At(value = "HEAD"),cancellable = true)
+
+	@Inject(method = "lock", at = @At(value = "HEAD"), cancellable = true)
 	public void lock(CallbackInfo ci) {
 		lock.lock();
 		ci.cancel();
 	}
-	
-	@Inject(method = "lockedSwap", at = @At(value = "HEAD"),cancellable = true)
+
+	@Inject(method = "get", at = @At(value = "HEAD"), cancellable = true)
+	public synchronized void lockedSwap(int x, int y, int z, CallbackInfoReturnable<T> ci) {
+
+		ci.setReturnValue(this.get(getIndex(x, y, z)));
+	}
+
+	//============================
+	@Inject(method = "lockedSwap", at = @At(value = "HEAD"), cancellable = true)
 	public synchronized void lockedSwap(int x, int y, int z, T state, CallbackInfoReturnable<T> ci) {
+	
 		lock.lock();
 		T t = this.doSwap(getIndex(x, y, z), state);
 		lock.unlock();
 		ci.setReturnValue(t);
+	}
+	//=============================
+	@Shadow
+	protected T get(int index) {
+		return null;
 	}
 
 	@Shadow
@@ -41,8 +54,8 @@ public class PalettedContainerMixin<T> {
 		return 0;
 	}
 
-	//@Overwrite
-	//public void unlock() {
-	//	this.lock.unlock();
-	//}
+	// @Overwrite
+	// public void unlock() {
+	// this.lock.unlock();
+	// }
 }
