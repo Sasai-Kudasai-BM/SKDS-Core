@@ -32,7 +32,7 @@ public class SKDSCoreConfig {
     }
 
     public static void init() {
-        File dir = new File(System.getProperty("user.dir") + "\\config\\" + SKDSCore.MOD_ID);        
+        File dir = new File(System.getProperty("user.dir") + "/config/" + SKDSCore.MOD_ID);        
 		dir.mkdir();
         ModLoadingContext.get().registerConfig(Type.COMMON, SPEC, SKDSCore.MOD_ID + "/main.toml");
         //ModLoadingContext.get().registerConfig(Type.COMMON, SPEC_WL, PhysEX.MOD_ID + "/waterlogged.toml");
