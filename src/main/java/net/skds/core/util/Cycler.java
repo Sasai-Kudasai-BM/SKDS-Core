@@ -42,12 +42,12 @@ public class Cycler<T> {
 			index = 0;
 		}
 		T e = list.get(index);
-<<<<<<< Updated upstream
-		index ++;
-=======
-		index++;
 
->>>>>>> Stashed changes
+		index++;
 		return e;
+	}
+
+	public boolean isEmpty() {
+		return list.isEmpty();
 	}
 }

@@ -2,7 +2,6 @@ package net.skds.core.api.collision;
 
 import java.util.List;
 
-import net.minecraft.util.math.AxisAlignedBB;
 import net.skds.core.util.mat.Vec3;
 import net.skds.core.util.other.collision.OBB;
 import net.skds.core.util.other.collision.OBBBody;

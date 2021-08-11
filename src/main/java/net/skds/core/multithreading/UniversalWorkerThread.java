@@ -7,7 +7,6 @@ import net.skds.core.SKDSCore;
 import net.skds.core.api.multithreading.ISKDSThread;
 import net.skds.core.api.multithreading.ITaskRunnable;
 import net.skds.core.util.Cycler;
-import net.skds.wpo.fluidphysics.WorldWorkSet;
 
 public class UniversalWorkerThread extends Thread implements ISKDSThread {
 
@@ -66,11 +65,7 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 		if (func == null) {
 			return null;
 		}
-<<<<<<< Updated upstream
-		ITaskRunnable task = func.apply(num);
-		if (task == null) {
-			cycler.removeEntry(func);
-=======
+
 		ITaskRunnable task = null;
 		//task = func.apply(num);
 		while (func == null || (task = func.apply(num)) == null) {
@@ -81,7 +76,6 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 				return null;
 			}
 			func = cycler.next();
->>>>>>> Stashed changes
 		}
 		return task;
 	}

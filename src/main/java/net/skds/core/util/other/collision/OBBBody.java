@@ -1,6 +1,5 @@
 package net.skds.core.util.other.collision;
 
-import java.util.Set;
 import java.util.stream.Stream;
 
 import net.minecraft.entity.Entity;
