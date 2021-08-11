@@ -115,7 +115,7 @@ public class UniversalJsonReader {
 	}
 
 	private static boolean create(IJsonConfigUnit unit) throws IOException {
-		BufferedInputStream is = new BufferedInputStream(unit.getClass().getClassLoader().getResourceAsStream(unit.getJarPath() + "\\" + unit.getFormatedName()));
+		BufferedInputStream is = new BufferedInputStream(unit.getClass().getClassLoader().getResourceAsStream(unit.getJarPath() + "/" + unit.getFormatedName()));
 
 		File configFile = new File(unit.getPath(), unit.getFormatedName());
 		if (configFile.exists()) {
