@@ -12,8 +12,7 @@ import net.skds.core.config.Main;
 public class SKDSCoreConfig {
 
     public static final Main COMMON;
-    //public static final Waterlogged WATERLOGGED;
-    private static final ForgeConfigSpec SPEC;//, SPEC_WL;
+    private static final ForgeConfigSpec SPEC;
 
 
     public static final int MAX_FLUID_LEVEL = 8;
@@ -22,19 +21,11 @@ public class SKDSCoreConfig {
         Pair<Main, ForgeConfigSpec> cm = new ForgeConfigSpec.Builder().configure(Main::new);
         COMMON = cm.getLeft();
         SPEC = cm.getRight();
-
-        //Pair<Waterlogged, ForgeConfigSpec> wl = new ForgeConfigSpec.Builder().configure(Waterlogged::new);
-        ///WATERLOGGED = wl.getLeft();
-        //SPEC_WL = wl.getRight();
-
-        // FINITE_WATER = COMMON.finiteWater.get();
-        // MAX_EQ_DIST = COMMON.maxEqDist.get();
     }
 
     public static void init() {
-        File dir = new File(System.getProperty("user.dir") + "\\config\\" + SKDSCore.MOD_ID);        
+        File dir = new File("config/" + SKDSCore.MOD_ID);        
 		dir.mkdir();
         ModLoadingContext.get().registerConfig(Type.COMMON, SPEC, SKDSCore.MOD_ID + "/main.toml");
-        //ModLoadingContext.get().registerConfig(Type.COMMON, SPEC_WL, PhysEX.MOD_ID + "/waterlogged.toml");
     }
 }
