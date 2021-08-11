@@ -23,6 +23,17 @@ public class Cycler<T> {
 		list.clear();
 	}
 
+	public void removeLast() {	
+		int index2 = index - 1;
+		if (index2 >= list.size()) {
+			index2 = 0;
+		}
+		if (index2 < 0) {
+			index2 = list.size();
+		}
+		list.remove(index2);
+	}
+
 	public T next() {
 		if (list.isEmpty()) {
 			return null;
@@ -31,7 +42,12 @@ public class Cycler<T> {
 			index = 0;
 		}
 		T e = list.get(index);
+<<<<<<< Updated upstream
 		index ++;
+=======
+		index++;
+
+>>>>>>> Stashed changes
 		return e;
 	}
 }

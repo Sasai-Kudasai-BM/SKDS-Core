@@ -1,4 +1,5 @@
 buildscript {
+<<<<<<< Updated upstream
     repositories {
         
         jcenter()
@@ -17,6 +18,28 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
+=======
+	repositories {
+		flatDir {
+			dirs 'libs'
+		}
+		jcenter()
+		maven { 
+			name = 'forge'
+			url = 'https://files.minecraftforge.net/maven' 
+		}
+		maven {
+		   name = 'sponge'
+		   url = 'https://repo.spongepowered.org/maven'
+		}
+		jcenter()
+		mavenCentral()
+	}
+	dependencies {
+		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
+		classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+	}
+>>>>>>> Stashed changes
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
@@ -33,7 +56,19 @@ minecraft {
     mappings channel: 'snapshot', version: '20201028-1.16.3'
 }
 
+
+sourceSets {
+	main {
+		resources {
+    		exclude 'META-INF/mods-dev.toml'
+			srcDir 'src/main/resources'
+			srcDir 'generated'
+		}
+	}
+}
+
 configurations {
+<<<<<<< Updated upstream
     embed
     compile.extendsFrom(embed)
 }
@@ -56,6 +91,79 @@ jar {
 }
 
 //jar.finalizedBy('reobfJar') 
+=======
+	embed
+	implementation.extendsFrom(embed)
+}
+
+dependencies {
+	minecraft 'net.minecraftforge:forge:1.16.5-36.0.14'
+	embed('org.spongepowered:mixin:0.8.3') { transitive = false }
+	annotationProcessor 'org.spongepowered:mixin:0.8.3:processor'
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+def modsTomlSpec = copySpec {
+	from('src/main/resources') {
+		include 'META-INF/mods-dev.toml'
+		expand 'version': project.version,
+				'ForgeVR': project.ForgeVR,
+				'MCVR': project.MCVR,
+				'modId': project.modId,
+				'modName': project.modName
+	}
+}
+
+def buildPaths = [
+	"$rootDir/generated",
+	"$rootDir/bin/main",
+	"$rootDir/build/resources/main"
+]
+
+task replaceResources {
+
+	copy {
+		rename('(.*)mods-dev(.*)', 'mods.toml')
+		duplicatesStrategy 'include'
+		outputs.upToDateWhen { true }
+		with modsTomlSpec
+		into processResources.destinationDir
+	}
+	buildPaths.each { path ->
+		copy {
+			rename('(.*)mods-dev(.*)', 'mods.toml')
+			duplicatesStrategy 'include'
+			outputs.upToDateWhen { true }
+			with modsTomlSpec
+			into path
+		}		
+	}
+}
+
+project.tasks.withType(Jar) { jarTask -> 
+	jarTask.manifest {
+		attributes([
+			"MixinConfigs": 'mixins.' + project.modId + '.json',
+			"Specification-Title": project.name,
+			"Implementation-Title": project.name,
+			"Implementation-Version": "${version}"
+		])
+	}
+}
+
+processResources {
+	finalizedBy replaceResources
+}
+
+task deobfJar(type:Jar) {
+	from sourceSets.main.output
+	classifier 'deobf'
+}
+
+artifacts {
+	archives deobfJar
+}
+>>>>>>> Stashed changes
 
 mixin {
     add sourceSets.main, 'mixins.skds_core.refmap.json'
