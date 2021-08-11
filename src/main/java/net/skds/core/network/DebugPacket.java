@@ -21,7 +21,7 @@ public class DebugPacket {
 		this.pos = buffer.readBlockPos();
 	}
 
-	void encoder(PacketBuffer buffer) {
+	public void encoder(PacketBuffer buffer) {
 		buffer.writeBlockPos(pos);
 	}
 
@@ -29,7 +29,7 @@ public class DebugPacket {
 		return new DebugPacket(buffer);
 	}
 
-	void handle(Supplier<NetworkEvent.Context> context) {		
+	public void handle(Supplier<NetworkEvent.Context> context) {		
 		Minecraft minecraft = Minecraft.getInstance();
 		ClientWorld w = (ClientWorld) minecraft.player.world;
 		w.addParticle(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0.06, 0);

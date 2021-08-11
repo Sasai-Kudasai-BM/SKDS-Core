@@ -53,9 +53,4 @@ public class PalettedContainerMixin<T> {
 	private static int getIndex(int x, int y, int z) {
 		return 0;
 	}
-
-	// @Overwrite
-	// public void unlock() {
-	// this.lock.unlock();
-	// }
 }

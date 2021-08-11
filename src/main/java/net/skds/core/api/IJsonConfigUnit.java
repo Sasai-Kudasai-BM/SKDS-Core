@@ -3,17 +3,12 @@ package net.skds.core.api;
 import com.google.gson.JsonObject;
 
 public interface IJsonConfigUnit {
-	String getPath();
-
-	String getFormat();
-
-	default String getFormatedName() {
+	public String getPath();
+	public String getFormat();
+	public String getName();
+	public String getJarPath();
+	public default String getFormatedName() {
 		return getName() + "." + getFormat();
 	}
-
-	String getName();
-
-	String getJarPath();
-
-	boolean apply(JsonObject paramJsonObject);
+	public boolean apply(JsonObject jo);
 }

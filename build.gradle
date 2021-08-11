@@ -1,5 +1,4 @@
 buildscript {
-
 	repositories {
 		flatDir {
 			dirs 'libs'
@@ -21,35 +20,65 @@ buildscript {
 		classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
 	}
 }
+
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'eclipse'
 
-version = '0.1.0'
-group = 'net.skds.core'
-archivesBaseName = 'skds_core'
+version = "${project.modVersion}"
+group = 'net.skds.' + project.modId
+archivesBaseName = project.modId + "-${project.minecraft}"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+//sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+
 minecraft {
 
-    mappings channel: 'snapshot', version: '20201028-1.16.3'
-}
+	mappings channel: 'snapshot', version: '20201028-1.16.3'
 
+	runs {
+		client {
+			workingDirectory project.file('run')
+			arg "--mixin"
+			arg "mixins." + project.modId + ".json"
+			arg "--username=Dev"
+			jvmArgs "-Xmx3G"
+			jvmArgs "-XX:+UseConcMarkSweepGC"
+			property "mixin.debug.export", "true"
+			property "mixin.debug", "true"
+			property "mixin.env.disableRefMap", "true"
+			property 'forge.logging.console.level', 'info'
+			property 'terminal.ansi', 'true'
+			mods {
+				skds {
+					source sourceSets.main
+				}
+			}
+		}
 
-sourceSets {
-	main {
-		resources {
-    		exclude 'META-INF/mods-dev.toml'
-			srcDir 'src/main/resources'
-			srcDir 'generated'
+		server {
+			workingDirectory project.file('run')
+			arg '--mixin mixins.' + project.modId + '.json'
+			arg "--username=Dev"
+			jvmArgs "-Xmx3G"
+			jvmArgs "-XX:+UseConcMarkSweepGC"
+			property "mixin.env.disableRefMap", "true"
+			property 'forge.logging.console.level', 'info'
+			property 'terminal.ansi', 'true'
+			mods {
+				skds {
+					source sourceSets.main
+				}
+			}
 		}
 	}
+
 }
 
 configurations {
 	embed
-	implementation.extendsFrom(embed)
+	compile.extendsFrom(embed)
 }
 
 dependencies {
@@ -59,9 +88,20 @@ dependencies {
 	implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
+sourceSets {
+	main {
+		resources {
+			srcDirs 'src/main/resources'
+			srcDirs 'generated'
+			exclude 'META-INF/mods-dev.toml'
+		}
+	}
+}
+
 def modsTomlSpec = copySpec {
 	from('src/main/resources') {
 		include 'META-INF/mods-dev.toml'
+		rename('(.*)mods-dev(.*)','mods.toml')
 		expand 'version': project.version,
 				'ForgeVR': project.ForgeVR,
 				'MCVR': project.MCVR,
@@ -77,22 +117,20 @@ def buildPaths = [
 ]
 
 task replaceResources {
-
 	copy {
-		rename('(.*)mods-dev(.*)', 'mods.toml')
 		duplicatesStrategy 'include'
-		outputs.upToDateWhen { true }
+		outputs.upToDateWhen { false }
 		with modsTomlSpec
 		into processResources.destinationDir
 	}
 	buildPaths.each { path ->
 		copy {
-			rename('(.*)mods-dev(.*)', 'mods.toml')
 			duplicatesStrategy 'include'
-			outputs.upToDateWhen { true }
+			outputs.upToDateWhen { false }
 			with modsTomlSpec
 			into path
-		}		
+		}
+		
 	}
 }
 
@@ -120,6 +158,7 @@ artifacts {
 	archives deobfJar
 }
 
+
 mixin {
-    add sourceSets.main, 'mixins.skds_core.refmap.json'
+	add sourceSets.main, 'mixins.' + project.modId + '.refmap.json'
 }

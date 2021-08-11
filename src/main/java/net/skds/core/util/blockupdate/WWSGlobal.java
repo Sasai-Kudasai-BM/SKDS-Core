@@ -13,34 +13,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.skds.core.api.IWWS;
-import net.skds.core.api.IWWSG;
 import net.skds.core.events.OnWWSAttachEvent;
 
-public class WWSGlobal implements IWWSG {
+public class WWSGlobal {
 
 	private static List<WWSGlobal> INSTANCES = new ArrayList<>();
-	// private static final Set<UniversalWorkerThread> THREADS =
-	// UniversalWorkerThread.create(Runtime.getRuntime().availableProcessors());
-	// private static final Set<UniversalWorkerThread> THREADS =
-	// UniversalWorkerThread.create(8);
-
-	//private static final Comparator<ITaskRunnable> comp = new Comparator<ITaskRunnable>() {
-	//	@Override
-	//	public int compare(ITaskRunnable k1, ITaskRunnable k2) {
-	//		double dcomp = (k1.getPriority() - k2.getPriority());
-	//		int comp = (int) dcomp;
-	//		if (comp == 0) {
-	//			comp = dcomp > 0 ? 1 : -1;
-	//		}
-	//		return comp;
-	//	}
-	//};
-
-	//private static ConcurrentSkipListSet<ITaskRunnable> TASKS = new ConcurrentSkipListSet<>(comp);
-
 	public final World world;
 	private Set<BlockPos> players = new HashSet<>();
-	private Map<Class<? extends IWWS>, IWWS> WWS = new HashMap<>();
+	private Map<Class<? extends IWWS>, IWWS> WWS = new HashMap<>(4);
 
 	private ConcurrentSet<Long> banPos = new ConcurrentSet<>();
 	private ConcurrentSet<Long> banPosOld = new ConcurrentSet<>();
@@ -53,13 +33,11 @@ public class WWSGlobal implements IWWSG {
 
 	private void bpClean() {
 		banPos.removeAll(banPosOld);
-		// banPos.clear();
 
 		banPosOld.clear();
 		banPosOld.addAll(banPos);
 	}
 
-	@Override
 	public void addWWS(IWWS wws) {
 		WWS.put(wws.getClass(), wws);
 	}
@@ -71,7 +49,6 @@ public class WWSGlobal implements IWWSG {
 	}
 
 	public void tickIn() {
-		// System.out.println(TASKS.size());
 		updatePlayers();
 		bpClean();
 		WWS.forEach((s, wws) -> {
@@ -95,9 +72,8 @@ public class WWSGlobal implements IWWSG {
 		players = np;
 	}
 
-	@Override
 	public double getSqDistToNBP(BlockPos pos) {
-		double dist = Double.MAX_VALUE;
+		double dist = 1.0E20;
 		for (BlockPos pos2 : players) {
 			double dx = (pos.getX() - pos2.getX());
 			double dz = (pos.getZ() - pos2.getZ());
@@ -107,54 +83,27 @@ public class WWSGlobal implements IWWSG {
 		return dist;
 	}
 
-	@Override
-	public IWWS getTyped(Class<? extends IWWS> type) {
-		return WWS.get(type);
+	@SuppressWarnings("unchecked")
+	public <T extends IWWS> T getTyped(Class<T> type) {
+		return (T) WWS.get(type);
 	}
 
 	public void unloadWorld(World w) {
 		INSTANCES.remove(this);
 		stop();
-		//TASKS.forEach(task -> {
-		//	if (task.revoke(w)) {
-		//		TASKS.remove(task);
-		//		task = null;
-		//	}
-		//});
 	}
 
-	//public static ITaskRunnable nextTask() {
-	//	if (MTHooks.COUNTS > 0 || Events.getRemainingTickTimeMilis() > MTHooks.TIME) {
-	//		MTHooks.COUNTS--;
-	//		return TASKS.pollFirst();
-	//	}
-	//	return null;
-	//}
 
-	@Override
 	public boolean unbanPos(long pos) {
 		return banPos.remove(pos);
 	}
 
-	@Override
 	public boolean banPos(long pos) {
 		boolean ss = banPos.add(pos);
-		// System.out.println(BlockPos.fromLong(pos) + " " + ss);
 		return ss;
 	}
 
-	@Override
 	public boolean isPosReady(long pos) {
 		return !banPos.contains(pos);
 	}
-
-	//public static void pushTask(ITaskRunnable task) {
-	//	// if (task instanceof FluidTask) {
-	//	// FluidTask t = (FluidTask) task;
-	//	// System.out.println(BlockPos.fromLong(t.pos));
-	//	// }
-	//	// System.out.println(TASKS.add(task));
-	//
-	//	TASKS.add(task);
-	//}
 }

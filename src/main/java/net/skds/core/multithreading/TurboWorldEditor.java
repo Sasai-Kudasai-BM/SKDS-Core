@@ -8,8 +8,9 @@ import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.server.ServerWorld;
 
 public class TurboWorldEditor {
+
 	public final BlockState nullreturnstate = Blocks.AIR.getDefaultState();
-	public final ServerWorld world;
+	public final ServerWorld world;	
 	public final TurboWorldReader reader;
 	public final Action<BlockPos, BlockState, BlockState, ServerWorld> action;
 
@@ -17,21 +18,23 @@ public class TurboWorldEditor {
 		this.world = reader.world;
 		this.reader = reader;
 		this.action = act;
-	}
-
+	}	
+	
 	public BlockState setState(BlockPos pos, BlockState newState) {
+
 		BlockState oldState = setMaskedBlockState(pos, newState);
 		if (oldState != null) {
-			this.action.applyAction(pos, newState, oldState, this.world);
-		} else {
+			action.applyAction(pos, newState, oldState, world);
 
-			return this.nullreturnstate;
+		} else {
+			return nullreturnstate;
 		}
 		return oldState;
 	}
 
+	
 	public BlockState setMaskedBlockState(BlockPos pos, BlockState state) {
-		Chunk chunk = this.reader.getChunk(pos);
+		Chunk chunk = reader.getChunk(pos);
 		if (chunk == null) {
 			return null;
 		}
@@ -46,12 +49,12 @@ public class TurboWorldEditor {
 			sec = new ChunkSection(y >> 4 << 4);
 			chunksections[y >> 4] = sec;
 		}
-		BlockState setted = sec.setBlockState(pos.getX() & 0xF, y & 0xF, pos.getZ() & 0xF, state);
+		BlockState setted = sec.setBlockState(pos.getX() & 15, y & 15, pos.getZ() & 15, state);
 
 		return setted;
 	}
 
 	public static interface Action<P extends BlockPos, A extends BlockState, B extends BlockState, W extends ServerWorld> {
-		void applyAction(P param1P, A param1A, B param1B, W param1W);
+		public void applyAction(P pos, A newState, B oldState, W w);
 	}
 }

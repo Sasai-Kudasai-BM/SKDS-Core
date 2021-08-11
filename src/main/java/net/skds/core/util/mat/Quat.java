@@ -3,7 +3,7 @@ package net.skds.core.util.mat;
 import net.minecraft.util.math.vector.Quaternion;
 
 public class Quat {
-	public static final Quat ONE = new Quat(0.0D, 0.0D, 0.0D, 1.0D);
+	public static final Quat ONE = new Quat(0.0F, 0.0F, 0.0F, 1.0F);
 	private double x;
 	private double y;
 	private double z;
@@ -18,14 +18,14 @@ public class Quat {
 
 	public Quat(Vec3 axis, double angle, boolean degrees) {
 		if (degrees) {
-			angle *= 0.017453292519943295D;
+			angle *= (Math.PI / 180D);
 		}
 
-		double f = Math.sin(angle / 2.0D);
+		double f = Math.sin(angle / 2.0F);
 		this.x = axis.x * f;
 		this.y = axis.y * f;
 		this.z = axis.z * f;
-		this.w = Math.cos(angle / 2.0D);
+		this.w = Math.cos(angle / 2.0F);
 	}
 
 	public Quat(Quat quaternionIn) {
@@ -43,21 +43,22 @@ public class Quat {
 	}
 
 	public boolean equals(Object p_equals_1_) {
-		if (this == p_equals_1_)
+		if (this == p_equals_1_) {
 			return true;
-		if (p_equals_1_ != null && getClass() == p_equals_1_.getClass()) {
+		} else if (p_equals_1_ != null && this.getClass() == p_equals_1_.getClass()) {
 			Quat QuaternionC = (Quat) p_equals_1_;
-			if (Double.compare(QuaternionC.x, this.x) != 0)
+			if (Double.compare(QuaternionC.x, this.x) != 0) {
 				return false;
-			if (Double.compare(QuaternionC.y, this.y) != 0)
+			} else if (Double.compare(QuaternionC.y, this.y) != 0) {
 				return false;
-			if (Double.compare(QuaternionC.z, this.z) != 0) {
+			} else if (Double.compare(QuaternionC.z, this.z) != 0) {
 				return false;
+			} else {
+				return Double.compare(QuaternionC.w, this.w) == 0;
 			}
-			return (Double.compare(QuaternionC.w, this.w) == 0);
+		} else {
+			return false;
 		}
-
-		return false;
 	}
 
 	public int hashCode() {
@@ -69,10 +70,10 @@ public class Quat {
 
 	public String toString() {
 		StringBuilder stringbuilder = new StringBuilder();
-		stringbuilder.append("Quat[").append(getW()).append(" + ");
-		stringbuilder.append(getX()).append("i + ");
-		stringbuilder.append(getY()).append("j + ");
-		stringbuilder.append(getZ()).append("k]");
+		stringbuilder.append("Quat[").append(this.getW()).append(" + ");
+		stringbuilder.append(this.getX()).append("i + ");
+		stringbuilder.append(this.getY()).append("j + ");
+		stringbuilder.append(this.getZ()).append("k]");
 		return stringbuilder.toString();
 	}
 
@@ -93,10 +94,10 @@ public class Quat {
 	}
 
 	public void multiply(Quat quaternionIn) {
-		double f = getX();
-		double f1 = getY();
-		double f2 = getZ();
-		double f3 = getW();
+		double f = this.getX();
+		double f1 = this.getY();
+		double f2 = this.getZ();
+		double f3 = this.getW();
 		double f4 = quaternionIn.getX();
 		double f5 = quaternionIn.getY();
 		double f6 = quaternionIn.getZ();
@@ -127,7 +128,12 @@ public class Quat {
 		this.w = w;
 	}
 
+
+
+	//=====================================
+
 	public Quaternion getMojang() {
-		return new Quaternion((float) this.x, (float) this.y, (float) this.z, (float) this.w);
+		return new Quaternion((float) x, (float) y, (float) z, (float) w);
 	}
+	
 }

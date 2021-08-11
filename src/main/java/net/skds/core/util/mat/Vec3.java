@@ -14,8 +14,7 @@ public class Vec3 {
 	public static Vec3 ZP = new Vec3(0.0F, 0.0F, 1.0F);
 
 	public static final Vec3 ZERO = new Vec3(0.0D, 0.0D, 0.0D);
-	public static final Vec3 SINGLE = new Vec3(1D, 1D, 1D);
-
+	public static final Vec3 SINGLE = new Vec3(1.0D, 1.0D, 1.0D);
 	public final double x;
 	public final double y;
 	public final double z;

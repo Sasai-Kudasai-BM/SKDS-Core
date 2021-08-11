@@ -11,6 +11,10 @@ public class Cycler<T> {
 		list = new ArrayList<>();
 	}
 
+	public boolean isEmpty() {
+		return list.isEmpty();
+	}
+
 	public boolean addEntry(T entry) {
 		return list.add(entry);
 	}
@@ -23,6 +27,18 @@ public class Cycler<T> {
 		list.clear();
 	}
 
+	public T next() {
+		if (list.isEmpty()) {
+			return null;
+		}
+		if (index >= list.size()) {
+			index = 0;
+		}
+		T e = list.get(index);
+		index++;
+		return e;
+	}
+	
 	public void removeLast() {	
 		int index2 = index - 1;
 		if (index2 >= list.size()) {
@@ -32,22 +48,5 @@ public class Cycler<T> {
 			index2 = list.size();
 		}
 		list.remove(index2);
-	}
-
-	public T next() {
-		if (list.isEmpty()) {
-			return null;
-		}
-		if (index >= list.size()) {
-			index = 0;
-		}
-		T e = list.get(index);
-
-		index++;
-		return e;
-	}
-
-	public boolean isEmpty() {
-		return list.isEmpty();
 	}
 }

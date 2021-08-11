@@ -2,6 +2,7 @@ package net.skds.core.multithreading;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
@@ -20,11 +21,12 @@ import net.skds.core.api.IServerChunkProvider;
 import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 public class TurboWorldReader {
+
 	public final BlockState nullreturnstate = Blocks.AIR.getDefaultState();
 	public final FluidState nullreturnFstate = Fluids.EMPTY.getDefaultState();
 	public final ServerWorld world;
 	private IChunk chunkCash = null;
-	private long chunkPosCash = 0L;
+	private long chunkPosCash = 0;
 	private boolean newChunkCash = true;
 
 	public TurboWorldReader(ServerWorld world) {
@@ -33,13 +35,13 @@ public class TurboWorldReader {
 
 	public IChunk getIChunk(int blockX, int blockZ) {
 		long lpos = ChunkPos.asLong(blockX >> 4, blockZ >> 4);
-		if (this.newChunkCash || lpos != this.chunkPosCash) {
-			this.newChunkCash = false;
-			ServerChunkProvider prov = this.world.getChunkProvider();
-			this.chunkCash = ((IServerChunkProvider) prov).getCustomChunk(lpos);
-			this.chunkPosCash = lpos;
+		if (newChunkCash || lpos != chunkPosCash) {
+			newChunkCash = false;
+			ServerChunkProvider prov = (ServerChunkProvider) world.getChunkProvider();
+			chunkCash = ((IServerChunkProvider) prov).getCustomChunk(lpos);
+			chunkPosCash = lpos;
 		}
-		return this.chunkCash;
+		return chunkCash;
 	}
 
 	public IChunk getIChunk(BlockPos pos) {
@@ -57,11 +59,11 @@ public class TurboWorldReader {
 	public BlockState getBlockState(BlockPos pos) {
 		IChunk chunk = getIChunk(pos);
 		if (chunk == null) {
-			return this.nullreturnstate;
+			return nullreturnstate;
 		}
 		BlockState ssss = chunk.getBlockState(pos);
 		if (ssss == null) {
-			return this.nullreturnstate;
+			return nullreturnstate;
 		}
 
 		return ssss;
@@ -70,11 +72,11 @@ public class TurboWorldReader {
 	public FluidState getFluidState(BlockPos pos) {
 		IChunk chunk = getIChunk(pos);
 		if (chunk == null) {
-			return this.nullreturnFstate;
+			return nullreturnFstate;
 		}
 		FluidState ssss = chunk.getFluidState(pos);
 		if (ssss == null) {
-			return this.nullreturnFstate;
+			return nullreturnFstate;
 		}
 
 		return ssss;
@@ -109,6 +111,8 @@ public class TurboWorldReader {
 		return tileentity;
 	}
 
+	// STATIC
+
 	public static Set<BlockPos> getBlockPoses(AxisAlignedBB aabb) {
 		int x0 = (int) Math.floor(aabb.minX);
 		int y0 = (int) Math.floor(aabb.minY);
@@ -138,6 +142,6 @@ public class TurboWorldReader {
 	}
 
 	public static boolean isAir(BlockState state) {
-		return (state.getMaterial() == Material.AIR);
+		return state.getMaterial() == Material.AIR;
 	}
 }

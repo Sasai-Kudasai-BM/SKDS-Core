@@ -10,11 +10,11 @@ import net.skds.core.util.Cycler;
 
 public class UniversalWorkerThread extends Thread implements ISKDSThread {
 
-	//private Supplier<ITaskRunnable> syncSup = (() -> null);
+	// private Supplier<ITaskRunnable> syncSup = (() -> null);
 
 	private Cycler<Function<Integer, ITaskRunnable>> cycler = new Cycler<>();
 
-	//private Supplier<ITaskRunnable> asyncSup = (() -> null);
+	// private Supplier<ITaskRunnable> asyncSup = (() -> null);
 	public boolean isDone = true;
 	public boolean cont = true;
 	public boolean yeld = true;
@@ -46,9 +46,13 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 			isDone = true;
 			LockSupport.park(this);
 			isDone = false;
+
+			// System.out.println("aa");
 			if (cont && !yeld) {
 				try {
-					takeTasksStack();					
+					// System.out.println("x");
+
+					takeTasksStack();
 				} catch (Exception e) {
 					SKDSCore.LOGGER.error("Exeption while taking task stack ", e);
 				}
@@ -56,7 +60,7 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 		}
 	}
 
-	private boolean shouldContain() {		
+	private boolean shouldContain() {
 		return !yeld;
 	}
 
@@ -80,8 +84,9 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 		return task;
 	}
 
-	private void takeTasksStack() {
+	private void takeTasksStack() throws Exception {
 		ITaskRunnable task;
+		// System.out.println(shouldContain());
 		while (shouldContain() && (task = pollTask()) != null) {
 			try {
 				task.run();
@@ -93,7 +98,7 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 	}
 
 	public void forkSync(Function<Integer, ITaskRunnable> sup) {
-		//syncSup = sup;
+		// syncSup = sup;
 		cycler.addEntry(sup);
 		yeld = false;
 		isDone = false;
@@ -103,7 +108,6 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 	public void waitForJoin() {
 		while (!isDone()) {
 			Thread.yield();
-			LockSupport.parkNanos("waiting for workers to finish", 100000L);
 		}
 		yeld = true;
 	}
