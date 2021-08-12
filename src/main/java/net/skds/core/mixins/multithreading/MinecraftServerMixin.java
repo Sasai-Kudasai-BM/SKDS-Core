@@ -19,6 +19,6 @@ public class MinecraftServerMixin {
 
     @Inject(method = "updateTimeLightAndEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/IProfiler;endStartSection(Ljava/lang/String;)V", ordinal = 1, shift = Shift.AFTER))
     private void tickHook(CallbackInfo ci) {
-        MTHooks.afterWorldsTick(profiler);
+        MTHooks.afterWorldsTick(profiler, (MinecraftServer) (Object) this);
     }
 }

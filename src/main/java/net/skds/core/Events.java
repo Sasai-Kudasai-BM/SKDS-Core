@@ -12,6 +12,7 @@ import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.skds.core.api.IWorldExtended;
 import net.skds.core.util.blockupdate.BlockUpdataer;
 import net.skds.core.util.blockupdate.WWSGlobal;
@@ -110,6 +111,11 @@ public class Events {
 	@SubscribeEvent
 	public void addReloadListenerEvent(AddReloadListenerEvent e) {
 		UniversalJsonReader.DATA_PACK_RREGISTRIES = e.getDataPackRegistries();
+	}
+
+	@SubscribeEvent
+	public void onServerStart(FMLServerStartedEvent e) {
+		SKDSCore.SERVER = e.getServer();
 	}
 
 	public static int getLastTickTime() {

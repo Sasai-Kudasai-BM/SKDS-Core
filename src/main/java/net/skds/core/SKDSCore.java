@@ -3,6 +3,7 @@ package net.skds.core;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -12,9 +13,10 @@ import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod("skds_core")
-public class SKDSCore
-{
+public class SKDSCore {
 
+    public static MinecraftServer SERVER = null;
+    public static final boolean DEV;
     public static final String MOD_ID = "skds_core";
     public static final String MOD_NAME = "SKDS Core";
     // Directly reference a log4j logger.
@@ -30,7 +32,7 @@ public class SKDSCore
 		MinecraftForge.EVENT_BUS.register(EVENTS);
 		MinecraftForge.EVENT_BUS.register(this);
 		SKDSCoreConfig.init();
-		//RegisterDebug.register();
+		//RegisterDebug.register();		
 	}
 
     private void setup(final FMLCommonSetupEvent event) {
@@ -45,4 +47,10 @@ public class SKDSCore
 
     private void processIMC(final InterModProcessEvent event) {
     }
+
+	static {
+		String targ = System.getenv("target");
+		LOGGER.info("Env target: " + targ);
+		DEV = targ.contains("dev");	
+	}
 }

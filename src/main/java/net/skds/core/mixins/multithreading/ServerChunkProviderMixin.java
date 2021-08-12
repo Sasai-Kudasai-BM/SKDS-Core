@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.server.ChunkHolder;
@@ -51,12 +52,12 @@ public abstract class ServerChunkProviderMixin implements IServerChunkProvider {
 	// }
 
 	@Inject(method = "getChunk", at = @At(value = "HEAD", ordinal = 0), cancellable = true)
-	public void aaa(int chunkX, int chunkZ, ChunkStatus requiredStatus, boolean load,
+	public void getChunk(int chunkX, int chunkZ, ChunkStatus requiredStatus, boolean load,
 			CallbackInfoReturnable<IChunk> ci) {
 		if (Thread.currentThread() instanceof ISKDSThread) {
 			long p = ChunkPos.asLong(chunkX, chunkZ);
 			IChunk iChunk = getCustomChunk(p);
-			if (load && iChunk == null) {
+			if (load && (iChunk == null || !(iChunk instanceof Chunk))) {
 				synchronized (this) {
 					CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>> completablefuture = this
 							.func_217233_c(chunkX, chunkZ, requiredStatus, load);

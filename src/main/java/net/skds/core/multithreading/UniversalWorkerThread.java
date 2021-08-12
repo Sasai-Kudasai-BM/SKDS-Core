@@ -44,7 +44,8 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 	public void run() {
 		while (cont) {
 			isDone = true;
-			LockSupport.park(this);
+			Thread.yield();
+			//LockSupport.parkNanos("waiting for tasks", 1000000L);
 			isDone = false;
 
 			// System.out.println("aa");
@@ -103,13 +104,6 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 		yeld = false;
 		isDone = false;
 		LockSupport.unpark(this);
-	}
-
-	public void waitForJoin() {
-		while (!isDone()) {
-			Thread.yield();
-		}
-		yeld = true;
 	}
 
 	public boolean isDone() {
