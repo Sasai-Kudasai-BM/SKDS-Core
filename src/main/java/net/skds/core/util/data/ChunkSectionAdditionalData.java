@@ -1,23 +1,28 @@
 package net.skds.core.util.data;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.chunk.ChunkSection;
-import net.minecraftforge.common.MinecraftForge;
 import net.skds.core.api.IChunkSectionData;
-import net.skds.core.events.OnCSLoadEvent;
 import net.skds.core.util.interfaces.IChunkSectionExtended;
 
 public class ChunkSectionAdditionalData {
 	
+	private static final Set<Supplier<IChunkSectionData>> REGISTER = new HashSet<>();
 	public final ChunkSection section;
 	private final Map<Class<? extends IChunkSectionData>, IChunkSectionData> DATA = new HashMap<>(2);
 
 	public ChunkSectionAdditionalData(ChunkSection section) {
 		this.section = section;
-		MinecraftForge.EVENT_BUS.post(new OnCSLoadEvent(this));
+		for (Supplier<IChunkSectionData> sup : REGISTER) {
+			IChunkSectionData dat = sup.get();
+			DATA.put(dat.getClass(), dat);
+		}
 	}
 
 	public void addData(IChunkSectionData data) {
@@ -43,5 +48,9 @@ public class ChunkSectionAdditionalData {
 
 	public static ChunkSectionAdditionalData getFromSection(ChunkSection section) {
 		return ((IChunkSectionExtended) section).getData();
+	}
+
+	public static boolean register(Supplier<IChunkSectionData> sup) {
+		return REGISTER.add(sup);
 	}
 }

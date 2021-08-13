@@ -45,7 +45,7 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 		while (cont) {
 			isDone = true;
 			Thread.yield();
-			//LockSupport.parkNanos("waiting for tasks", 1000000L);
+			LockSupport.parkNanos("waiting for tasks", 100000L);
 			isDone = false;
 
 			// System.out.println("aa");
@@ -96,6 +96,8 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 			}
 			task = null;
 		}
+		yeld = true;
+
 	}
 
 	public void forkSync(Function<Integer, ITaskRunnable> sup) {
@@ -107,7 +109,8 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 	}
 
 	public boolean isDone() {
-		return isDone;
+		//return isDone;
+		return yeld;
 	}
 
 	@Override

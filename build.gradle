@@ -33,8 +33,7 @@ archivesBaseName = project.modId + "-${project.minecraft}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
-minecraft {
-
+minecraft {	
 	mappings channel: 'snapshot', version: '20201028-1.16.3'
 
 	runs {
@@ -73,7 +72,6 @@ minecraft {
 			}
 		}
 	}
-
 }
 
 configurations {
