@@ -19,6 +19,8 @@ import net.minecraft.world.server.ServerWorld;
 import net.skds.core.api.multithreading.ISKDSThread;
 import net.skds.core.api.IServerChunkProvider;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 import com.mojang.datafixers.util.Either;
 import net.minecraft.util.Util;
 
@@ -62,16 +64,20 @@ public abstract class ServerChunkProviderMixin implements IServerChunkProvider {
 					CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>> completablefuture = this
 							.func_217233_c(chunkX, chunkZ, requiredStatus, load);
 					// this.executor.driveUntil(completablefuture::isDone);
-					iChunk = completablefuture.join().map((p_222874_0_) -> {
-						return p_222874_0_;
-					}, (p_222870_1_) -> {
-						if (load) {
-							throw (IllegalStateException) Util.pauseDevMode(
-									new IllegalStateException("Chunk not there when requested: " + p_222870_1_));
-						} else {
-							return null;
-						}
-					});
+					try {
+						iChunk = completablefuture.get().map((p_222874_0_) -> {
+							return p_222874_0_;
+						}, (p_222870_1_) -> {
+							if (load) {
+								throw (IllegalStateException) Util.pauseDevMode(
+										new IllegalStateException("Chunk not there when requested: " + p_222870_1_));
+							} else {
+								return null;
+							}
+						});
+					} catch (InterruptedException | ExecutionException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			ci.setReturnValue(iChunk);

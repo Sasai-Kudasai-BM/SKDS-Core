@@ -77,10 +77,10 @@ public class WWSGlobal {
 		for (BlockPos pos2 : players) {
 			double dx = (pos.getX() - pos2.getX());
 			double dz = (pos.getZ() - pos2.getZ());
-
 			dist = Math.min(dist, (dx * dx) + (dz * dz));
 		}
 		return dist;
+		//return 1;
 	}
 
 	@SuppressWarnings("unchecked")
