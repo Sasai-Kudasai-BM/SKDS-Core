@@ -10,9 +10,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.server.ServerWorld;
 import net.skds.core.api.IWWS;
 import net.skds.core.multithreading.TurboWorldEditor;
 import net.skds.core.multithreading.TurboWorldReader;
@@ -23,19 +23,19 @@ public abstract class BasicExecutor implements Runnable {
 	protected final TurboWorldEditor editor;
 
 	protected final BlockState nullreturnstate = Blocks.BARRIER.getDefaultState();
-	protected final ServerWorld w;
+	protected final World w;
 	protected final IWWS owner;
 	protected Set<BlockPos> banPoses = new HashSet<>();
 	protected boolean cancel = false;
 
-	protected BasicExecutor(ServerWorld w, IWWS owner) {
+	protected BasicExecutor(World w, IWWS owner) {
 		this.reader = new TurboWorldReader(w);
 		this.editor = new TurboWorldEditor(reader, this::applyAction);
 		this.owner = owner;
 		this.w = w;
 	}
 
-	protected abstract void applyAction(BlockPos pos, BlockState newState, BlockState oldState, ServerWorld w);
+	protected abstract void applyAction(BlockPos pos, BlockState newState, BlockState oldState, World w);
 
 	protected BlockState setState(BlockPos pos, BlockState newState) {
 

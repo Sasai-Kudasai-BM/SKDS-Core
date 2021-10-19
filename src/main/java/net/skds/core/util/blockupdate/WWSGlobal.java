@@ -1,10 +1,8 @@
 package net.skds.core.util.blockupdate;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import io.netty.util.internal.ConcurrentSet;
@@ -13,14 +11,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.skds.core.api.IWWS;
+import net.skds.core.api.multithreading.ITaskRunnable;
 import net.skds.core.events.OnWWSAttachEvent;
+import net.skds.core.util.Class2InstanceMap;
+import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 public class WWSGlobal {
 
 	private static List<WWSGlobal> INSTANCES = new ArrayList<>();
 	public final World world;
 	private Set<BlockPos> players = new HashSet<>();
-	private Map<Class<? extends IWWS>, IWWS> WWS = new HashMap<>(4);
+	//private Map<Class<? extends IWWS>, IWWS> WWS = new HashMap<>(4);
+	private Class2InstanceMap<IWWS> WWS = new Class2InstanceMap<IWWS>();
 
 	private ConcurrentSet<Long> banPos = new ConcurrentSet<>();
 	private ConcurrentSet<Long> banPosOld = new ConcurrentSet<>();
@@ -39,27 +41,38 @@ public class WWSGlobal {
 	}
 
 	public void addWWS(IWWS wws) {
-		WWS.put(wws.getClass(), wws);
+		WWS.put(wws);
 	}
 
 	public void stop() {
-		WWS.forEach((s, wws) -> {
-			wws.close();
-		});
+		WWS.iterate(wws -> wws.close());
 	}
 
 	public void tickIn() {
 		updatePlayers();
 		bpClean();
-		WWS.forEach((s, wws) -> {
-			wws.tickIn();
-		});
+		WWS.iterate(wws -> wws.tickIn());
 	}
 
 	public void tickOut() {
-		WWS.forEach((s, wws) -> {
-			wws.tickOut();
-		});
+		WWS.iterate(wws -> wws.tickOut());
+		/*
+		if (!world.isRemote) {
+			ServerChunkProvider serverChunkProvider = (ServerChunkProvider) world.getChunkProvider();
+			for (ChunkHolder holder : ((ChunkManagerMixin) serverChunkProvider.chunkManager).getLoadedChunks()) {
+				if (holder != null) {
+					Chunk chunk = holder.getChunkIfComplete();
+					if (chunk != null) {
+						for (ChunkSection section : chunk.getSections()) {
+							if (section != null) {
+								ChunkSectionAdditionalData.getFromSection(section).tick();
+							}
+						}
+					}
+				}
+			}
+		}
+		//*/
 	}
 
 	private void updatePlayers() {
@@ -83,16 +96,14 @@ public class WWSGlobal {
 		//return 1;
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T extends IWWS> T getTyped(Class<T> type) {
-		return (T) WWS.get(type);
+		return WWS.get(type);
 	}
 
 	public void unloadWorld(World w) {
 		INSTANCES.remove(this);
 		stop();
 	}
-
 
 	public boolean unbanPos(long pos) {
 		return banPos.remove(pos);
@@ -105,5 +116,43 @@ public class WWSGlobal {
 
 	public boolean isPosReady(long pos) {
 		return !banPos.contains(pos);
+	}
+
+	public static void tickPostMTH() {
+		INSTANCES.forEach(wwsg -> {
+		});
+	}
+
+	public static void tickPreMTH() {
+	}
+
+	public static class TickSectionTask implements ITaskRunnable {
+
+		private final ChunkSectionAdditionalData csad;
+
+		public TickSectionTask(ChunkSectionAdditionalData csad) {
+			this.csad = csad;
+		}
+
+		@Override
+		public void run() {
+			csad.tick();
+		}
+
+		@Override
+		public boolean revoke(World w) {
+			return false;
+		}
+
+		@Override
+		public double getPriority() {
+			return -1E6;
+		}
+
+		@Override
+		public int getSubPriority() {
+			return 0;
+		}
+
 	}
 }

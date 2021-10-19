@@ -12,11 +12,11 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraft.world.server.ServerWorld;
 import net.skds.core.api.IServerChunkProvider;
 import net.skds.core.util.data.ChunkSectionAdditionalData;
 
@@ -24,12 +24,15 @@ public class TurboWorldReader {
 
 	public final BlockState nullreturnstate = Blocks.AIR.getDefaultState();
 	public final FluidState nullreturnFstate = Fluids.EMPTY.getDefaultState();
-	public final ServerWorld world;
+	public final World world;
 	private IChunk chunkCash = null;
 	private long chunkPosCash = 0;
 	private boolean newChunkCash = true;
+	
+	public final boolean isClient;
 
-	public TurboWorldReader(ServerWorld world) {
+	public TurboWorldReader(World world) {
+		this.isClient = world.isRemote;
 		this.world = world;
 	}
 
@@ -37,8 +40,12 @@ public class TurboWorldReader {
 		long lpos = ChunkPos.asLong(blockX >> 4, blockZ >> 4);
 		if (newChunkCash || lpos != chunkPosCash) {
 			newChunkCash = false;
-			ServerChunkProvider prov = (ServerChunkProvider) world.getChunkProvider();
-			chunkCash = ((IServerChunkProvider) prov).getCustomChunk(lpos);
+			AbstractChunkProvider prov = world.getChunkProvider();
+			if (isClient) {
+				chunkCash = prov.getChunkNow(blockX >> 4, blockZ >> 4);
+			} else {
+				chunkCash = ((IServerChunkProvider) prov).getCustomChunk(lpos);
+			}
 			chunkPosCash = lpos;
 		}
 		return chunkCash;
@@ -94,7 +101,8 @@ public class TurboWorldReader {
 		ChunkSection[] chunksections = chunk.getSections();
 		ChunkSection sec = chunksections[y >> 4];
 		if (sec == null && create) {
-			sec = new ChunkSection(y >> 4 << 4);
+			sec = new ChunkSection(y >> 4 << 4);			
+			ChunkSectionAdditionalData.getFromSection(sec).finish(world);
 			chunksections[y >> 4] = sec;
 		}
 		return sec;

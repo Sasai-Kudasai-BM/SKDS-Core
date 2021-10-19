@@ -11,6 +11,8 @@
     "multithreading.ServerChunkProviderMixin",
     "multithreading.MinecraftServerMixin",
 
+    "custom.ChunkManagerMixin",
+    "custom.ChunkMixin",
     "custom.WorldMixin",
     "custom.BlockMixin"
   ],

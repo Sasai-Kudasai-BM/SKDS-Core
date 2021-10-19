@@ -3,7 +3,6 @@ package net.skds.core;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
@@ -37,7 +36,7 @@ public class Events {
 			if (cs == null) {
 				continue;
 			}
-			String n = (cs.getYLocation() >> 4) + "";
+			String n = Integer.toString(cs.getYLocation() >> 4);
 			CompoundNBT nbt2 = list.getCompound(n);
 			ChunkSectionAdditionalData.getFromSection(cs).serialize(nbt2);
 			list.put(n, nbt2);
@@ -53,8 +52,10 @@ public class Events {
 			if (cs == null) {
 				continue;
 			}
-			String n = (cs.getYLocation() >> 4) + "";
-			ChunkSectionAdditionalData.getFromSection(cs).deserialize(list.getCompound(n));
+			String n = Integer.toString(cs.getYLocation() >> 4);
+			ChunkSectionAdditionalData csd = ChunkSectionAdditionalData.getFromSection(cs);
+			csd.finish((World) e.getWorld());
+			csd.deserialize(list.getCompound(n));
 		}
 	}
 
@@ -64,9 +65,8 @@ public class Events {
 		World w = (World) e.getWorld();
 		WWSGlobal wwsg = ((IWorldExtended) w).getWWS();
 		wwsg.unloadWorld(w);
-		if (!w.isRemote) {
-			BlockUpdataer.onWorldUnload((ServerWorld) e.getWorld());
-		}
+		BlockUpdataer.onWorldUnload(w);
+
 	}
 
 	@SubscribeEvent
@@ -74,9 +74,8 @@ public class Events {
 
 		World w = (World) e.getWorld();
 		((IWorldExtended) w).addWWS();
-		if (!w.isRemote) {
-			BlockUpdataer.onWorldLoad((ServerWorld) w);
-		}
+		BlockUpdataer.onWorldLoad(w);
+
 	}
 
 	@SubscribeEvent
@@ -87,7 +86,7 @@ public class Events {
 		if (in) {
 			WWSGlobal wwsg = ((IWorldExtended) w).getWWS();
 			wwsg.tickIn();
-			
+
 		}
 		if (!in) {
 			WWSGlobal wwsg = ((IWorldExtended) w).getWWS();

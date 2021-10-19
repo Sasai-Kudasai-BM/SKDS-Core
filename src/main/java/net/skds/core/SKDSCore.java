@@ -11,7 +11,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.skds.core.debug.ExampleData;
 import net.skds.core.network.PacketHandler;
+import net.skds.core.util.SKDSUtils.Side;
+import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 @Mod(SKDSCore.MOD_ID)
 public class SKDSCore {
@@ -37,6 +40,7 @@ public class SKDSCore {
 
     private void setup(final FMLCommonSetupEvent event) {
 		PacketHandler.init();
+		//ChunkSectionAdditionalData.register(ExampleData::new, Side.BOTH);
     }
 
 	private void setupClient(final FMLClientSetupEvent event) {

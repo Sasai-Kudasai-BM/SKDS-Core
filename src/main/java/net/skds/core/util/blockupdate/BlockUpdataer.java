@@ -3,7 +3,7 @@ package net.skds.core.util.blockupdate;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.World;
 
 public class BlockUpdataer {
 
@@ -16,10 +16,10 @@ public class BlockUpdataer {
 		}
 	}
 	
-	public static void onWorldLoad(ServerWorld w) {
+	public static void onWorldLoad(World w) {
 	}
 
-	public static void onWorldUnload(ServerWorld w) {
+	public static void onWorldUnload(World w) {
 		addEntities();
 	}	
 

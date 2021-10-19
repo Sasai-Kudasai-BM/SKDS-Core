@@ -1,17 +1,14 @@
 package net.skds.core.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.skds.core.api.ICustomBlockPars;
 
 public class CustomBlockPars implements ICustomBlockPars {
 
-	private final Map<Class<?>, Object> pars = new HashMap<>(4);
+	private final Class2InstanceMap<Object> pars = new Class2InstanceMap<>();
 
 	@Override
 	public void put(Object o) {
-		pars.put(o.getClass(), o);
+		pars.put(o);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -25,7 +22,7 @@ public class CustomBlockPars implements ICustomBlockPars {
 	}
 
 	@Override
-	public void clear(Class<?> c) {
+	public <T extends Object> void clear(Class<T> c) {
 		pars.remove(c);
 	}
 }

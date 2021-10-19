@@ -3,6 +3,7 @@ package net.skds.core.multithreading;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Function;
 
+import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.skds.core.SKDSCore;
 import net.skds.core.api.multithreading.ISKDSThread;
 import net.skds.core.api.multithreading.ITaskRunnable;
@@ -21,9 +22,9 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 	public final int num;
 
 	public UniversalWorkerThread(int num) {
+		super(SidedThreadGroups.SERVER, "SKDS-Worker-" + num);
 		this.num = num;
 		setDaemon(true);
-		setName("SKDS-Worker-" + num);
 		start();
 	}
 
@@ -66,6 +67,7 @@ public class UniversalWorkerThread extends Thread implements ISKDSThread {
 	}
 
 	private ITaskRunnable pollTask() {
+
 		Function<Integer, ITaskRunnable> func = cycler.next();
 		if (func == null) {
 			return null;

@@ -19,7 +19,6 @@ public class ThreadProvider {
 	public static void waitForStop() throws InterruptedException {
 		while (!isDone()) {
 			Thread.yield();
-			//LockSupport.parkNanos("waiting for tasks", 10000L);
 		}
 
 	}

@@ -3,19 +3,18 @@ package net.skds.core.multithreading;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.server.ServerWorld;
+import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 public class TurboWorldEditor {
 
 	public final BlockState nullreturnstate = Blocks.AIR.getDefaultState();
-	public final ServerWorld world;	
 	public final TurboWorldReader reader;
-	public final Action<BlockPos, BlockState, BlockState, ServerWorld> action;
+	public final Action<BlockPos, BlockState, BlockState, World> action;
 
-	public TurboWorldEditor(TurboWorldReader reader, Action<BlockPos, BlockState, BlockState, ServerWorld> act) {
-		this.world = reader.world;
+	public TurboWorldEditor(TurboWorldReader reader, Action<BlockPos, BlockState, BlockState, World> act) {
 		this.reader = reader;
 		this.action = act;
 	}	
@@ -24,7 +23,7 @@ public class TurboWorldEditor {
 
 		BlockState oldState = setMaskedBlockState(pos, newState);
 		if (oldState != null) {
-			action.applyAction(pos, newState, oldState, world);
+			action.applyAction(pos, newState, oldState, reader.world);
 
 		} else {
 			return nullreturnstate;
@@ -47,14 +46,16 @@ public class TurboWorldEditor {
 		ChunkSection sec = chunksections[y >> 4];
 		if (sec == null) {
 			sec = new ChunkSection(y >> 4 << 4);
+			ChunkSectionAdditionalData.getFromSection(sec).finish(reader.world);
 			chunksections[y >> 4] = sec;
+			
 		}
 		BlockState setted = sec.setBlockState(pos.getX() & 15, y & 15, pos.getZ() & 15, state);
 
 		return setted;
 	}
 
-	public static interface Action<P extends BlockPos, A extends BlockState, B extends BlockState, W extends ServerWorld> {
+	public static interface Action<P extends BlockPos, A extends BlockState, B extends BlockState, W extends World> {
 		public void applyAction(P pos, A newState, B oldState, W w);
 	}
 }

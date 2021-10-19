@@ -42,6 +42,7 @@ public class PacketHandler {
 		int id = 0;
 		PacketRegistryEvent event = new PacketRegistryEvent(CHANNEL, id);
 		event.registerPacket(DebugPacket.class, DebugPacket::encoder, DebugPacket::decoder, DebugPacket::handle);
+		event.registerPacket(CSDPacket.class, CSDPacket::encoder, CSDPacket::decoder, CSDPacket::handle);
 		ModLoader.get().postEvent(new PacketRegistryEvent(CHANNEL, id));
 	}
 }
