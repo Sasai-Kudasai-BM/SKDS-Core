@@ -1,13 +1,15 @@
 package net.skds.core;
 
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -16,7 +18,8 @@ import net.skds.core.api.IWorldExtended;
 import net.skds.core.util.blockupdate.BlockUpdataer;
 import net.skds.core.util.blockupdate.WWSGlobal;
 import net.skds.core.util.configs.UniversalJsonReader;
-import net.skds.core.util.data.ChunkSectionAdditionalData;
+import net.skds.core.util.data.ChunkCapability;
+import net.skds.core.util.data.ChunkCapabilityData;
 
 public class Events {
 
@@ -30,43 +33,62 @@ public class Events {
 
 	@SubscribeEvent
 	public void onChunkSave(ChunkDataEvent.Save e) {
-		CompoundNBT nbt = e.getData();
-		CompoundNBT list = nbt.getCompound("SKDSCSDL");
-		for (ChunkSection cs : e.getChunk().getSections()) {
-			if (cs == null) {
-				continue;
-			}
-			String n = Integer.toString(cs.getYLocation() >> 4);
-			CompoundNBT nbt2 = list.getCompound(n);
-			ChunkSectionAdditionalData.getFromSection(cs).serialize(nbt2);
-			list.put(n, nbt2);
-		}
-		nbt.put("SKDSCSDL", list);
 	}
 
 	@SubscribeEvent
 	public void onChunkLoad(ChunkDataEvent.Load e) {
-		CompoundNBT nbt = e.getData();
-		CompoundNBT list = nbt.getCompound("SKDSCSDL");
-		for (ChunkSection cs : e.getChunk().getSections()) {
-			if (cs == null) {
-				continue;
-			}
-			String n = Integer.toString(cs.getYLocation() >> 4);
-			ChunkSectionAdditionalData csd = ChunkSectionAdditionalData.getFromSection(cs);
-			csd.finish((World) e.getWorld());
-			csd.deserialize(list.getCompound(n));
-		}
+	}
+
+	@SubscribeEvent
+	public void onChunkLoad(ChunkEvent.Load e) {
+		//System.out.println(e.getChunk().getPos());
+		//if (!e.getWorld().isRemote()) {
+		//	Chunk chunk = (Chunk) e.getChunk();
+		//	ChunkPos cp = chunk.getPos();
+		//	Optional<ChunkCapabilityData> op = ChunkCapabilityData.getCap(chunk);
+		//	if (op.isPresent()) {
+		//		CSDLoadPacket packet = new CSDLoadPacket(op.get(), cp.x, cp.z);
+		//		ServerChunkProvider scp = (ServerChunkProvider) e.getWorld().getChunkProvider();
+		//		scp.chunkManager.getTrackingPlayers(cp, false).parallel().forEach(p -> PacketHandler.send(p, packet));
+		//	}
+		//} else {
+		//	Chunk chunk = (Chunk) e.getChunk();
+		//	ChunkPos cp = chunk.getPos();
+		//	ByteBuf buff;
+		//	if ((buff = ChunkCapabilityData.WATCHED_C.get(cp.asLong())) != null) {
+		//		ChunkCapabilityData.apply(chunk, d -> d.load(buff));
+		//	}
+		//}
+	}
+
+	@SubscribeEvent
+	public void onChunkUnload(ChunkEvent.Unload e) {
+		//if (e.getWorld().isRemote()) {
+		//	ChunkPos cp = e.getChunk().getPos();
+		//	ChunkCapabilityData.WATCHED_C.remove(cp.asLong());
+		//}
+	}
+
+	@SubscribeEvent
+	public void onChunkWatch(ChunkWatchEvent.Watch e) {
+		//ChunkPos cp = e.getPos();
+		//Chunk chunk = (Chunk) e.getWorld().getChunkProvider().getChunkNow(cp.x, cp.z);
+		//if (chunk != null && !chunk.isEmpty()) {
+		//	Optional<ChunkCapabilityData> op = ChunkCapabilityData.getCap(chunk);
+		//	if (op.isPresent()) {
+		//		CSDLoadPacket packet = new CSDLoadPacket(op.get(), cp.x, cp.z);
+		//		PacketHandler.send(e.getPlayer(), packet);
+		//	}
+		//}
+	}
+
+	@SubscribeEvent
+	public void attachCCap(AttachCapabilitiesEvent<Chunk> e) {
+		e.addCapability(ChunkCapability.KEY, new ChunkCapabilityData(e.getObject()));
 	}
 
 	@SubscribeEvent
 	public void onWorldUnload(WorldEvent.Unload e) {
-
-		World w = (World) e.getWorld();
-		WWSGlobal wwsg = ((IWorldExtended) w).getWWS();
-		wwsg.unloadWorld(w);
-		BlockUpdataer.onWorldUnload(w);
-
 	}
 
 	@SubscribeEvent

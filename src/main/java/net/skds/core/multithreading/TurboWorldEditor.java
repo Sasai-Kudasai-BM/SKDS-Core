@@ -6,7 +6,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
-import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 public class TurboWorldEditor {
 
@@ -46,7 +45,6 @@ public class TurboWorldEditor {
 		ChunkSection sec = chunksections[y >> 4];
 		if (sec == null) {
 			sec = new ChunkSection(y >> 4 << 4);
-			ChunkSectionAdditionalData.getFromSection(sec).finish(reader.world);
 			chunksections[y >> 4] = sec;
 			
 		}

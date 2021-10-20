@@ -1,31 +1,41 @@
 package net.skds.core.util.data;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.Chunk;
 import net.skds.core.api.IChunkSectionData;
 import net.skds.core.util.Class2InstanceMap;
 import net.skds.core.util.SKDSUtils;
 import net.skds.core.util.SKDSUtils.Side;
-import net.skds.core.util.interfaces.IChunkSectionExtended;
 
 public class ChunkSectionAdditionalData {
 	
 	private static RegEntry[] REGISTER = {};
-	private boolean finished = false;
-	private boolean isClient = false;
-	public final ChunkSection section;
-	//private final Map<Class<? extends IChunkSectionData>, IChunkSectionData> DATA = new HashMap<>(2);
-	private final Class2InstanceMap<IChunkSectionData> DATA = new Class2InstanceMap<IChunkSectionData>();
-	private World world;
 
-	public ChunkSectionAdditionalData(ChunkSection section) {
-		this.section = section;
+	private final Class2InstanceMap<IChunkSectionData> DATA = new Class2InstanceMap<IChunkSectionData>();
+
+	public final World world;
+	public final Chunk chunk;
+
+	public final int secTndex;
+
+	public ChunkSectionAdditionalData(Chunk chunk, int index) {
+		this.secTndex = index;
+		this.chunk = chunk;
+		this.world = chunk.getWorld();
+		for (RegEntry entry : REGISTER) {
+			if (entry.side == Side.BOTH || (entry.side == Side.SERVER && !world.isRemote) || (entry.side == Side.CLIENT && world.isRemote)) {
+				IChunkSectionData dat = entry.sup.sypply(this, entry.side);
+				if (dat != null) {
+					DATA.put(dat);
+				}
+			}
+		}
 	}
 
 	public <T extends IChunkSectionData> T getData(Class<T> type) {
@@ -33,7 +43,7 @@ public class ChunkSectionAdditionalData {
 	}
 
 	public void tick() {
-		DATA.iterate(d -> d.tickParallel());
+		DATA.iterate(d -> d.tick());
 	}
 
 	public void serialize(CompoundNBT nbt) {
@@ -42,7 +52,6 @@ public class ChunkSectionAdditionalData {
 
 	public void deserialize(CompoundNBT nbt) {
 		DATA.iterate(d -> d.deserialize(nbt));
-		//finish();
 	}
 
 	public void read(PacketBuffer buff) {
@@ -53,51 +62,31 @@ public class ChunkSectionAdditionalData {
 		DATA.iterate(d -> d.write(buff));
 	}
 
-	public void onBlockAdded(int x, int y, int z, BlockState newState, BlockState oldState) {
-		DATA.iterate(d -> d.onBlockAdded(x, y, z, newState, oldState));
-	}
-
-	public void finish(World world) {
-		this.world = world;
-		if (world != null) {
-			isClient = world.isRemote;
-		}
-		for (RegEntry entry : REGISTER) {
-			if (entry.side == Side.BOTH || (entry.side == Side.SERVER && !isClient) || (entry.side == Side.CLIENT && isClient)) {
-				IChunkSectionData dat = entry.sup.sypply(this, entry.side);
-				if (dat != null) {
-					DATA.put(dat);
-				}
-			}
-		}
-		finished = true;
-	}
-
-	public boolean isFinished() {
-		return finished;
-	}
-
 	public boolean isClient() {
-		return isClient;
+		return world.isRemote;
 	}
-
-	public World getWorld() {
-		return world;
-	}
-
+	
 	public int getSize() {
 		AtomicInteger s = new AtomicInteger();
 		DATA.iterate(d -> s.addAndGet(d.getSize()));
 		return s.get();
 	}
 
-	public static ChunkSectionAdditionalData getFromSection(ChunkSection section) {
-		return ((IChunkSectionExtended) section).getData();
+	public static ChunkSectionAdditionalData get(Chunk chunk, int index) {
+		Optional<ChunkCapabilityData> op = ChunkCapabilityData.getCap(chunk);
+		if (op.isPresent()) {
+			ChunkCapabilityData dat = op.get();
+			return dat.getCSAD(index, false);
+		}
+		return null;
 	}
 
-	public static <T extends IChunkSectionData> T getTypedFromSection(ChunkSection section, Class<T> type) {
-		ChunkSectionAdditionalData csad = ((IChunkSectionExtended) section).getData();
-		return csad.getData(type);
+	public static <T extends IChunkSectionData> T getTyped(Chunk chunk, int index, Class<T> type) {
+		ChunkSectionAdditionalData csad = get(chunk, index);
+		if (csad != null) {
+			return csad.getData(type);
+		}
+		return null;
 	}
 
 	public static void register(IChunkSectionDataSupplyer func, SKDSUtils.Side side) {
@@ -118,6 +107,6 @@ public class ChunkSectionAdditionalData {
 	}
 
 	public interface IChunkSectionDataSupplyer {
-		public IChunkSectionData sypply(ChunkSectionAdditionalData csad, SKDSUtils.Side side );
+		public IChunkSectionData sypply(ChunkSectionAdditionalData csad, SKDSUtils.Side side);
 	}
 }

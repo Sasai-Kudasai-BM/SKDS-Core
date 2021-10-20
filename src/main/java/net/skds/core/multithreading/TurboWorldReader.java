@@ -18,7 +18,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.IChunk;
 import net.skds.core.api.IServerChunkProvider;
-import net.skds.core.util.data.ChunkSectionAdditionalData;
 
 public class TurboWorldReader {
 
@@ -102,7 +101,6 @@ public class TurboWorldReader {
 		ChunkSection sec = chunksections[y >> 4];
 		if (sec == null && create) {
 			sec = new ChunkSection(y >> 4 << 4);			
-			ChunkSectionAdditionalData.getFromSection(sec).finish(world);
 			chunksections[y >> 4] = sec;
 		}
 		return sec;
@@ -139,14 +137,6 @@ public class TurboWorldReader {
 			}
 		}
 		return set;
-	}
-
-	public ChunkSectionAdditionalData getCSAD(BlockPos pos, boolean createSection) {
-		ChunkSection cs = getChunkSection(pos, createSection);
-		if (cs == null) {
-			return null;
-		}
-		return ChunkSectionAdditionalData.getFromSection(cs);
 	}
 
 	public static boolean isAir(BlockState state) {

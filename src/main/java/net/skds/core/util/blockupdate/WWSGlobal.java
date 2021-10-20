@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.skds.core.api.IWWS;
+import net.skds.core.api.IWorldExtended;
 import net.skds.core.api.multithreading.ITaskRunnable;
 import net.skds.core.events.OnWWSAttachEvent;
 import net.skds.core.util.Class2InstanceMap;
@@ -21,8 +22,7 @@ public class WWSGlobal {
 	private static List<WWSGlobal> INSTANCES = new ArrayList<>();
 	public final World world;
 	private Set<BlockPos> players = new HashSet<>();
-	//private Map<Class<? extends IWWS>, IWWS> WWS = new HashMap<>(4);
-	private Class2InstanceMap<IWWS> WWS = new Class2InstanceMap<IWWS>();
+	private Class2InstanceMap<IWWS> WWS = new Class2InstanceMap<>();
 
 	private ConcurrentSet<Long> banPos = new ConcurrentSet<>();
 	private ConcurrentSet<Long> banPosOld = new ConcurrentSet<>();
@@ -31,6 +31,10 @@ public class WWSGlobal {
 		world = w;
 		MinecraftForge.EVENT_BUS.post(new OnWWSAttachEvent(w, this));
 		INSTANCES.add(this);
+	}
+
+	public static WWSGlobal get(World world) {
+		return ((IWorldExtended) world).getWWS();
 	}
 
 	private void bpClean() {

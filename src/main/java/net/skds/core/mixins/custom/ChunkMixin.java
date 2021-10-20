@@ -1,35 +1,24 @@
 package net.skds.core.mixins.custom;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.At;
 
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.biome.BiomeContainer;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.chunk.ChunkSection;
-import net.skds.core.util.data.ChunkSectionAdditionalData;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.skds.core.util.data.ChunkCapabilityData;
 
 @Mixin(Chunk.class)
 public class ChunkMixin {
 
-	@Final
-	@Shadow
-	private World world;
-	@Final
-	@Shadow
-	private ChunkSection[] sections;
-	
-	@Inject(method = "Lnet/minecraft/world/chunk/Chunk;<init>(Lnet/minecraft/world/World;Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("TAIL"))
-	void init(World worldIn, ChunkPrimer primer, CallbackInfo ci) {
-		for (ChunkSection section : sections) {
-			if (section != null) {
-				ChunkSectionAdditionalData.getFromSection(section).finish(worldIn);
-			}
-		}
+	@OnlyIn(Dist.CLIENT)
+	@Inject(method = "read", at = @At("TAIL"))
+	void read(BiomeContainer biomeContainerIn, PacketBuffer packetBufferIn, CompoundNBT nbtIn, int availableSections, CallbackInfo ci) {
+		ChunkCapabilityData.apply((Chunk) (Object) this, dat -> dat.read(packetBufferIn));
 	}
-
 }

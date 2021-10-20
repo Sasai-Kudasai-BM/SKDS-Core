@@ -38,6 +38,7 @@ public class OBBBody<E extends Entity & IOBBEntity> {
 
 	}
 
+	@SuppressWarnings("unused")
 	private void setMotion() {
 		entity.setMotion(motion.getMojangD());
 	}
