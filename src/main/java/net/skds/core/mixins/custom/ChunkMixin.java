@@ -11,7 +11,7 @@ import net.minecraft.world.biome.BiomeContainer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.skds.core.util.data.ChunkCapabilityData;
+import net.skds.core.util.data.capability.ChunkCapabilityData;
 
 @Mixin(Chunk.class)
 public class ChunkMixin {

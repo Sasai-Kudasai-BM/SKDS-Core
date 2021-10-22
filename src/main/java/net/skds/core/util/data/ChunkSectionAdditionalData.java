@@ -12,6 +12,7 @@ import net.skds.core.api.IChunkSectionData;
 import net.skds.core.util.Class2InstanceMap;
 import net.skds.core.util.SKDSUtils;
 import net.skds.core.util.SKDSUtils.Side;
+import net.skds.core.util.data.capability.ChunkCapabilityData;
 
 public class ChunkSectionAdditionalData {
 	

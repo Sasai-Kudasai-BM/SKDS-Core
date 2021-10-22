@@ -5,33 +5,51 @@ import java.util.function.Consumer;
 
 public class Class2InstanceMap<T> {
 
-	private static final Object[] EMPTY_V = {};
-	private static final Class<?>[] EMPTY_K = {};
+	//private static final Object[] EMPTY = {};
 
-	private int size = 0;
-	private T[] values;
-	private Class<T>[] keys;
+	private Object[] values = {};
 
-	@SuppressWarnings("unchecked")
 	public Class2InstanceMap() {
-		values = (T[]) EMPTY_V;
-		keys = (Class<T>[]) EMPTY_K;
 	}
 
 	@SuppressWarnings("unchecked")
 	public void put(T value) {
-		int index = size;
-		resize(size + 1);
-		values[index] = value;
-		keys[index] = (Class<T>) value.getClass();
+		if (value == null) {
+			return;
+		}
+		for (Object o : values) {
+			Entry e = (Entry) o;
+			if (e.clazz == value.getClass()) {
+				e.instance = value;
+				return;
+			}
+		}
+		int index = values.length;
+		resize(index + 1);
+		values[index] = new Entry(value);
+	}
+
+	@SuppressWarnings("unchecked")
+	public int containIndex(Class<? extends T> c) {
+		for (int i = 0; i < values.length; i++) {
+			if (((Entry) values[i]).clazz == c) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public boolean contains(Class<? extends T> c) {
+		return containIndex(c) != -1;
 	}
 
 	@SuppressWarnings("unchecked")
 	public <V extends T> V get(Class<V> c) {
-		if (size > 0) {
-			for (int i = 0; i < size; i++) {
-				if (keys[i] == c) {
-					return (V) values[i];
+		if (values.length > 0) {
+			for (Object o : values) {
+				Entry e = (Entry) o;
+				if (e.clazz == c) {
+					return (V) e.instance;
 				}
 			}
 		}
@@ -39,45 +57,58 @@ public class Class2InstanceMap<T> {
 	}
 
 	private void resize(int newSize) {
-		size = newSize;
-		values = Arrays.copyOf(values, size);
-		keys = Arrays.copyOf(keys, size);
+		values = Arrays.copyOf(values, newSize);
+	}
+
+	public void remove(Class<? extends T> c) {
+		if (values.length > 0) {
+			int n = containIndex(c);
+			if (n == -1) {
+				return;
+			}
+			Object[] a1 = new Object[values.length - 1];
+			int i2 = 0;
+			for (int i = 0; i < values.length; i ++) {
+				if (i != n) {
+					a1[i2] = values[i];
+					i2++;
+				}
+			}
+			values = a1;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public void remove(Class<? extends T> key) {
-		T[] newValues = (T[]) EMPTY_V;
-		Class<T>[] newKeys = (Class<T>[]) EMPTY_K;
-		for (int i = 0; i < size; i++) {
-			if (keys[i] != key) {
-				newValues = Arrays.copyOf(newValues, newValues.length + 1);
-				newKeys = Arrays.copyOf(newKeys, newValues.length);
-				newValues[newValues.length - 1] = values[i];
-				newKeys[newKeys.length - 1] = keys[i];
-			}
-		}
-		values = newValues;
-		keys = newKeys;
-		size = keys.length;
-	}
-
 	public void iterate(Consumer<T> consumer) {
-		for (T val : values) {
-			consumer.accept(val);
+		for (Object o : values) {
+			Entry e = (Entry) o;
+			consumer.accept(e.instance);
 		}
 	}
 
 	public int size() {
-		return size;
+		return values.length;
 	}
 
 	@Override
 	public String toString() {
-		String s = "[";
-		for (int i = 0; i < size; i++) {
-			s += String.format("{%s=%s} ", keys[i], values[i]);
+		return Arrays.toString(values);
+	}
+
+	private class Entry {
+
+		public Class<T> clazz;
+		public T instance;
+
+		@SuppressWarnings("unchecked")
+		Entry(T instance) {
+			this.clazz = (Class<T>) instance.getClass();
+			this.instance = instance;
 		}
-		s += "]";
-		return s;
+
+		@Override
+		public String toString() {
+			return String.format("{%s=%s} ", clazz, instance);
+		}
 	}
 }

@@ -17,6 +17,20 @@ import net.skds.core.SKDSCore;
 
 public class SKDSUtils {
 
+	private static final long[] BITS = new long[64];
+
+	public static byte getByteBit(int i) {
+		return (byte) BITS[i];
+	}
+
+	public static int getIntBit(int i) {
+		return (int) BITS[i];
+	}
+
+	public static long getLingBit(int i) {
+		return BITS[i];
+	}
+
 	public static FluidState readFluidState(CompoundNBT tag) {
 		if (!tag.contains("Name", 8)) {
 			return Fluids.EMPTY.getDefaultState();
@@ -73,5 +87,11 @@ public class SKDSUtils {
 
 	public static enum Side {
 		CLIENT, SERVER, BOTH;
+	}
+
+	static {
+		for (int i = 0; i < 64; i++) {
+			BITS[i] = 1L << i;
+		}
 	}
 }

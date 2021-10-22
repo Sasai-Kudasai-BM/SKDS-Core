@@ -1,17 +1,13 @@
 package net.skds.core.mixins.multithreading;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.world.chunk.ChunkSection;
-import net.skds.core.debug.ExampleData;
 import net.skds.core.util.data.ChunkSectionAdditionalData;
 import net.skds.core.util.interfaces.IChunkSectionExtended;
 
@@ -28,17 +24,16 @@ public class ChunkSectionMixin implements IChunkSectionExtended {
 		ci.setReturnValue(oldState);
 	}
 
-	@Overwrite
-	public FluidState getFluidState(int x, int y, int z) {
-
-		if (addData != null) {
-			boolean s = addData.getData(ExampleData.class).isPrikol(x, y, z);
-			if (s) {
-				return Fluids.WATER.getDefaultState();
-			}
-		}
-		return Fluids.EMPTY.getDefaultState();
-	}
+	//@Overwrite
+	//public FluidState getFluidState(int x, int y, int z) {
+	//	if (addData != null) {
+	//		boolean s = addData.getData(ExampleData.class).isPrikol(x, y, z);
+	//		if (s) {
+	//			return Fluids.WATER.getDefaultState();
+	//		}
+	//	}
+	//	return Fluids.EMPTY.getDefaultState();
+	//}
 
 	@Shadow
 	private BlockState setBlockState(int x, int y, int z, BlockState blockStateIn, boolean b) {

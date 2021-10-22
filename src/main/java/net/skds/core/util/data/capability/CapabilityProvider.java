@@ -1,4 +1,4 @@
-package net.skds.core.util.data;
+package net.skds.core.util.data.capability;
 
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;

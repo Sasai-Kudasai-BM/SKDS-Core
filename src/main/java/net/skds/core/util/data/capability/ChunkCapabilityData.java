@@ -1,4 +1,4 @@
-package net.skds.core.util.data;
+package net.skds.core.util.data.capability;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import net.skds.core.util.data.ChunkSectionAdditionalData;
 import net.skds.core.util.interfaces.IChunkSectionExtended;
 
 public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT> {

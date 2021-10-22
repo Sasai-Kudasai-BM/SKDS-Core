@@ -18,8 +18,8 @@ import net.skds.core.api.IWorldExtended;
 import net.skds.core.util.blockupdate.BlockUpdataer;
 import net.skds.core.util.blockupdate.WWSGlobal;
 import net.skds.core.util.configs.UniversalJsonReader;
-import net.skds.core.util.data.ChunkCapability;
-import net.skds.core.util.data.ChunkCapabilityData;
+import net.skds.core.util.data.capability.ChunkCapability;
+import net.skds.core.util.data.capability.ChunkCapabilityData;
 
 public class Events {
 

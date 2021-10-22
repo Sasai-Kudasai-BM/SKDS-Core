@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SChunkDataPacket;
 import net.minecraft.world.chunk.Chunk;
-import net.skds.core.util.data.ChunkCapabilityData;
+import net.skds.core.util.data.capability.ChunkCapabilityData;
 
 @Mixin(SChunkDataPacket.class)
 public class SChunkDataPacketMixin {
