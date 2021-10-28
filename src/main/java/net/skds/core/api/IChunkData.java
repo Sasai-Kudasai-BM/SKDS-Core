@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.skds.core.util.SKDSUtils;
 
-public interface IChunkSectionData {
+public interface IChunkData {
 
 	public void serialize(CompoundNBT nbt);
 	public void deserialize(CompoundNBT nbt);

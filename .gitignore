@@ -6,4 +6,5 @@ logs
 lib
 .settings
 .vscode
+.lnk
 libs

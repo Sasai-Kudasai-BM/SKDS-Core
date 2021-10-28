@@ -124,10 +124,14 @@ public class WWSGlobal {
 
 	public static void tickPostMTH() {
 		INSTANCES.forEach(wwsg -> {
+			wwsg.WWS.iterate(w -> w.tickPostMTH());
 		});
 	}
 
 	public static void tickPreMTH() {
+		INSTANCES.forEach(wwsg -> {
+			wwsg.WWS.iterate(w -> w.tickPreMTH());
+		});
 	}
 
 	public static class TickSectionTask implements ITaskRunnable {

@@ -7,6 +7,9 @@ public interface IWWS {
 	public void tickOut();
 	public void close();
 	public WWSGlobal getG();
+
+	public void tickPreMTH();
+	public void tickPostMTH();
 	//public void fork();
 	//public void join() throws InterruptedException;
 }

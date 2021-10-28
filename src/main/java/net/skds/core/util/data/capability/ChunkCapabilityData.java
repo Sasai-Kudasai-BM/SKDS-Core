@@ -1,6 +1,8 @@
 package net.skds.core.util.data.capability;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import net.minecraft.nbt.CompoundNBT;
@@ -14,14 +16,22 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import net.skds.core.api.IChunkData;
+import net.skds.core.util.Class2InstanceMap;
+import net.skds.core.util.SKDSUtils;
+import net.skds.core.util.SKDSUtils.Side;
 import net.skds.core.util.data.ChunkSectionAdditionalData;
 import net.skds.core.util.interfaces.IChunkSectionExtended;
 
 public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT> {
 
+	private static RegEntry[] REGISTER = {};
+
 	public final Chunk chunk;
 
 	private final ChunkSectionAdditionalData[] data;
+
+	private final Class2InstanceMap<IChunkData> DATA = new Class2InstanceMap<>();
 
 	public ChunkCapabilityData(Chunk chunk) {
 		this.chunk = chunk;
@@ -30,6 +40,21 @@ public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT>
 		if (!w.isRemote) {
 			createDefault();
 		}
+		for (RegEntry entry : REGISTER) {
+			if (entry.side == Side.BOTH || (entry.side == Side.SERVER && !w.isRemote) || (entry.side == Side.CLIENT && w.isRemote)) {
+				IChunkData dat = entry.sup.sypply(this, entry.side);
+				if (dat != null) {
+					DATA.put(dat);
+				}
+			}
+		}
+	}
+
+	public void onUnload() {
+		for (ChunkSectionAdditionalData c : data) {
+			c.onUnload();
+		}
+		DATA.iterate(d -> d.onUnload());
 	}
 
 	private void createDefault() {
@@ -50,6 +75,7 @@ public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT>
 				buffer.writeByte(0x22);
 			}
 		}
+		DATA.iterate(d -> d.write(buffer));
 	}
 
 	public int getSize() {
@@ -59,7 +85,9 @@ public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT>
 				i += d.getSize();
 			}
 		}
-		return i;
+		AtomicInteger ai = new AtomicInteger(i);
+		DATA.iterate(d -> ai.addAndGet(d.getSize()));
+		return ai.get();
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -68,7 +96,8 @@ public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT>
 			if (buffer.readByte() == 0x11) {
 				getCSAD(i, true).read(buffer);
 			}
-		}
+		}		
+		DATA.iterate(d -> d.read(buffer));
 	}
 
 	@Override
@@ -81,6 +110,7 @@ public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT>
 				nbt.put(Integer.toString(i), nbt2);
 			}
 		}
+		DATA.iterate(d -> d.serialize(nbt));
 		return nbt;
 	}
 
@@ -92,6 +122,7 @@ public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT>
 				getCSAD(i, true).deserialize(nbt2);
 			}
 		}
+		DATA.iterate(d -> d.deserialize(nbt));
 	}
 
 	public ChunkSectionAdditionalData getCSAD(int index, boolean create) {
@@ -109,6 +140,10 @@ public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT>
 
 	public int getCSADSize() {
 		return data.length;
+	}
+
+	public <T extends IChunkData> IChunkData getCData(Class<T> type) {
+		return DATA.get(type);
 	}
 
 	@Override
@@ -130,5 +165,26 @@ public class ChunkCapabilityData implements ICapabilitySerializable<CompoundNBT>
 			return true;
 		}
 		return false;
+	}
+	
+	public static void register(IChunkDataSupplyer func, SKDSUtils.Side side) {
+		RegEntry entry = new RegEntry(func, side);
+		REGISTER = Arrays.copyOf(REGISTER, REGISTER.length + 1);
+		REGISTER[REGISTER.length - 1] = entry;
+	}
+
+	private static class RegEntry {
+		public final SKDSUtils.Side side;
+		public final IChunkDataSupplyer sup;
+
+		RegEntry(IChunkDataSupplyer func, SKDSUtils.Side side) {
+			this.side = side;
+			this.sup = func;
+		}
+
+	}
+
+	public interface IChunkDataSupplyer {
+		public IChunkData sypply(ChunkCapabilityData cap, SKDSUtils.Side side);
 	}
 }

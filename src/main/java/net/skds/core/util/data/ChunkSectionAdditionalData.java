@@ -29,9 +29,10 @@ public class ChunkSectionAdditionalData {
 		this.secTndex = index;
 		this.chunk = chunk;
 		this.world = chunk.getWorld();
+		Side actualSide = world.isRemote ? Side.CLIENT : Side.SERVER;
 		for (RegEntry entry : REGISTER) {
-			if (entry.side == Side.BOTH || (entry.side == Side.SERVER && !world.isRemote) || (entry.side == Side.CLIENT && world.isRemote)) {
-				IChunkSectionData dat = entry.sup.sypply(this, entry.side);
+			if (entry.side == Side.BOTH || (entry.side == actualSide)) {
+				IChunkSectionData dat = entry.sup.sypply(this, actualSide);
 				if (dat != null) {
 					DATA.put(dat);
 				}
@@ -41,6 +42,10 @@ public class ChunkSectionAdditionalData {
 
 	public <T extends IChunkSectionData> T getData(Class<T> type) {
 		return DATA.get(type);
+	}
+
+	public void onUnload() {
+		DATA.iterate(d -> d.onUnload());
 	}
 
 	public void tick() {
