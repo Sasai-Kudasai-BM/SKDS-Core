@@ -1,32 +1,30 @@
 package net.skds.core.util;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
-public class Class2InstanceMap<T> {
-
-	//private static final Object[] EMPTY = {};
+public class Object2ObjectMap<K, V> {
 
 	private Object[] values = {};
 
-	public Class2InstanceMap() {
+	public Object2ObjectMap() {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void put(T value) {
+	public void put(K key, V value) {
 		if (value == null) {
 			return;
 		}
 		for (Object o : values) {
 			Entry e = (Entry) o;
-			if (e.clazz == value.getClass()) {
-				e.instance = value;
+			if (e.key == value.getClass()) {
+				e.value = value;
 				return;
 			}
 		}
 		int index = values.length;
 		resize(index + 1);
-		values[index] = new Entry(value);
+		values[index] = new Entry(key, value);
 	}
 
 	public boolean isEmpty() {
@@ -34,26 +32,26 @@ public class Class2InstanceMap<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int containIndex(Class<? extends T> c) {
+	public int containIndex(K c) {
 		for (int i = 0; i < values.length; i++) {
-			if (((Entry) values[i]).clazz == c) {
+			if (((Entry) values[i]).key == c) {
 				return i;
 			}
 		}
 		return -1;
 	}
 
-	public boolean contains(Class<? extends T> c) {
+	public boolean contains(K c) {
 		return containIndex(c) != -1;
 	}
 
 	@SuppressWarnings("unchecked")
-	public <V extends T> V get(Class<V> c) {
+	public <T extends V> T get(K c) {
 		if (values.length > 0) {
 			for (Object o : values) {
 				Entry e = (Entry) o;
-				if (e.clazz == c) {
-					return (V) e.instance;
+				if (e.key == c) {
+					return (T) e.value;
 				}
 			}
 		}
@@ -64,7 +62,7 @@ public class Class2InstanceMap<T> {
 		values = Arrays.copyOf(values, newSize);
 	}
 
-	public void remove(Class<? extends T> c) {
+	public void remove(K c) {
 		if (values.length > 0) {
 			int n = containIndex(c);
 			if (n == -1) {
@@ -83,10 +81,10 @@ public class Class2InstanceMap<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void iterate(Consumer<T> consumer) {
+	public void iterate(BiConsumer<K, V> consumer) {
 		for (Object o : values) {
 			Entry e = (Entry) o;
-			consumer.accept(e.instance);
+			consumer.accept(e.key, e.value);
 		}
 	}
 
@@ -101,18 +99,17 @@ public class Class2InstanceMap<T> {
 
 	private class Entry {
 
-		public Class<T> clazz;
-		public T instance;
+		public K key;
+		public V value;
 
-		@SuppressWarnings("unchecked")
-		Entry(T instance) {
-			this.clazz = (Class<T>) instance.getClass();
-			this.instance = instance;
+		Entry(K key, V value) {
+			this.key = key;
+			this.value = value;
 		}
 
 		@Override
 		public String toString() {
-			return String.format("{%s=%s} ", clazz, instance);
+			return String.format("{%s=%s} ", key, value);
 		}
 	}
 }
