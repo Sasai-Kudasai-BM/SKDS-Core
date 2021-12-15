@@ -22,6 +22,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 
 version = "${project.modVersion}"
 group = 'net.skds.' + project.modId
