@@ -159,6 +159,13 @@ artifacts {
 	archives deobfJar
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+}
 
 mixin {
 	add sourceSets.main, 'mixins.' + project.modId + '.refmap.json'
