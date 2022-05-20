@@ -1,9 +1,5 @@
 package net.skds.core.mixins.multithreading;
 
-import java.util.concurrent.CompletableFuture;
-
-import com.mojang.datafixers.util.Either;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,15 +24,6 @@ public abstract class ServerChunkProviderMixin implements IServerChunkProvider {
 	@Final
 	@Shadow
 	public ServerWorld world;
-	
-	private Chunk empty = null;
-
-	private Chunk emptyChunk() {
-		if (empty == null) {
-			empty = new EmptyChunk(world, new ChunkPos(0, 0));
-		}
-		return empty;
-	}
 
 	public IChunk getCustomChunk(long l) {
 		ChunkHolder chunkHolder = this.func_217213_a(l);
@@ -58,15 +45,9 @@ public abstract class ServerChunkProviderMixin implements IServerChunkProvider {
 			long p = ChunkPos.asLong(chunkX, chunkZ);
 			IChunk iChunk = getCustomChunk(p);
 			if (load && (iChunk == null || !(iChunk instanceof Chunk))) {
-				iChunk = emptyChunk();
+				iChunk = new EmptyChunk(world, new ChunkPos(chunkX, chunkZ));
 			}
 			ci.setReturnValue(iChunk);
 		}
-	}
-
-	@Shadow
-	private CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>> func_217233_c(int chunkX, int chunkZ,
-			ChunkStatus requiredStatus, boolean load) {
-		return null;
 	}
 }
