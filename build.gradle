@@ -1,172 +1,51 @@
-buildscript {
-	repositories {
-		flatDir {
-			dirs 'libs'
-		}
-		jcenter()
-		maven { 
-			name = 'forge'
-			url = 'https://files.minecraftforge.net/maven' 
-		}
-		maven {
-		   name = 'sponge'
-		   url = 'https://repo.spongepowered.org/maven'
-		}
-		jcenter()
-		mavenCentral()
-	}
-	dependencies {
-		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
-		classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-	}
+plugins {
+	id 'fabric-loom' version '0.11-SNAPSHOT'
+	id 'maven-publish'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
-version = "${project.modVersion}"
-group = 'net.skds.' + project.modId
-archivesBaseName = project.modId + "-${project.minecraft}"
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
 
-//sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
-
-minecraft {	
-	mappings channel: 'snapshot', version: '20201028-1.16.3'
-
-	runs {
-		client {
-			workingDirectory project.file('run')
-			arg "--mixin"
-			arg "mixins." + project.modId + ".json"
-			arg "--username=Sasai_Kudasai_BM"
-			jvmArgs "-Xmx3G"
-			jvmArgs "-XX:+UseConcMarkSweepGC"
-			property "mixin.debug.export", "true"
-			property "mixin.debug", "true"
-			property "mixin.env.disableRefMap", "true"
-			property 'forge.logging.console.level', 'info'
-			property 'terminal.ansi', 'true'
-			mods {
-				skds {
-					source sourceSets.main
-				}
-			}
-		}
-
-		server {
-			workingDirectory project.file('run')
-			arg '--mixin mixins.' + project.modId + '.json'
-			arg "--username=Sasai_Kudasai_BM"
-			jvmArgs "-Xmx3G"
-			jvmArgs "-XX:+UseConcMarkSweepGC"
-			property "mixin.env.disableRefMap", "true"
-			property 'forge.logging.console.level', 'info'
-			property 'terminal.ansi', 'true'
-			mods {
-				skds {
-					source sourceSets.main
-				}
-			}
-		}
-	}
-}
-
-configurations {
-	embed
-	compile.extendsFrom(embed)
+repositories {
 }
 
 dependencies {
-	minecraft 'net.minecraftforge:forge:1.16.5-36.0.14'
-	embed('org.spongepowered:mixin:0.8.4') { transitive = false }
-	annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
-	implementation fileTree(dir: 'libs', include: ['*.jar'])
-}
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-sourceSets {
-	main {
-		resources {
-			srcDirs 'src/main/resources'
-			srcDirs 'generated'
-			exclude 'META-INF/mods-dev.toml'
-		}
-	}
-}
-
-def modsTomlSpec = copySpec {
-	from('src/main/resources') {
-		include 'META-INF/mods-dev.toml'
-		rename('(.*)mods-dev(.*)','mods.toml')
-		expand 'version': project.version,
-				'ForgeVR': project.ForgeVR,
-				'MCVR': project.MCVR,
-				'modId': project.modId,
-				'modName': project.modName,
-				'coreVR': project.coreVR
-	}
-}
-
-def buildPaths = [
-	"$rootDir/generated",
-	"$rootDir/bin/main",
-	"$rootDir/build/resources/main"
-]
-
-task replaceResources {
-	copy {
-		duplicatesStrategy 'include'
-		outputs.upToDateWhen { false }
-		with modsTomlSpec
-		into processResources.destinationDir
-	}
-	buildPaths.each { path ->
-		copy {
-			duplicatesStrategy 'include'
-			outputs.upToDateWhen { false }
-			with modsTomlSpec
-			into path
-		}
-		
-	}
-}
-
-project.tasks.withType(Jar) { jarTask -> 
-	jarTask.manifest {
-		attributes([
-			"MixinConfigs": 'mixins.' + project.modId + '.json',
-			"Specification-Title": project.name,
-			"Implementation-Title": project.name,
-			"Implementation-Version": "${version}"
-		])
-	}
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources {
-	duplicatesStrategy 'include'
-	finalizedBy replaceResources
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
 }
 
-task deobfJar(type:Jar) {
-	from sourceSets.main.output
-	classifier 'deobf'
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
 }
 
-artifacts {
-	archives deobfJar
+java {
+	withSourcesJar()
+}
+
+jar {
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact deobfJar
-        }
-    }
-}
-
-mixin {
-	add sourceSets.main, 'mixins.' + project.modId + '.refmap.json'
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+	repositories {
+	}
 }

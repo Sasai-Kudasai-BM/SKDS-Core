@@ -5,8 +5,6 @@ import java.util.function.Function;
 
 import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.skds.core.SKDSCore;
-import net.skds.core.api.multithreading.ISKDSThread;
-import net.skds.core.api.multithreading.ITaskRunnable;
 import net.skds.core.util.Cycler;
 
 public class UniversalWorkerThread extends Thread implements ISKDSThread {

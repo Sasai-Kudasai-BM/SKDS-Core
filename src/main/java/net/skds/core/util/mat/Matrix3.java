@@ -1,47 +1,62 @@
 package net.skds.core.util.mat;
 
-import net.minecraft.util.math.vector.Matrix3f;
 
 public class Matrix3 {
-	protected double m00 = 1D;
-	protected double m01 = 0D;
-	protected double m02 = 0D;
-	protected double m10 = 0D;
-	protected double m11 = 1D;
-	protected double m12 = 0D;
-	protected double m20 = 0D;
-	protected double m21 = 0D;
-	protected double m22 = 1D;
+
+	public static final Matrix3 SINGLE = new Matrix3();
+
+	public double m00 = 1D;
+	public double m01 = 0D;
+	public double m02 = 0D;
+	public double m10 = 0D;
+	public double m11 = 1D;
+	public double m12 = 0D;
+	public double m20 = 0D;
+	public double m21 = 0D;
+	public double m22 = 1D;
 
 	public Matrix3() {
 	}
 
+	public Matrix3(Vec3[] normals) {
+		m00 = normals[0].x;
+		m01 = normals[1].x;
+		m02 = normals[2].x;
+		m10 = normals[0].y;
+		m11 = normals[1].y;
+		m12 = normals[2].y;
+		m20 = normals[0].z;
+		m21 = normals[1].z;
+		m22 = normals[2].z;
+	}
+
+
 	public Matrix3(Quat quaternionIn) {
-		double f = quaternionIn.getX();
-		double f1 = quaternionIn.getY();
-		double f2 = quaternionIn.getZ();
-		double f3 = quaternionIn.getW();
-		double f4 = 2.0F * f * f;
-		double f5 = 2.0F * f1 * f1;
-		double f6 = 2.0F * f2 * f2;
-		this.m00 = 1.0F - f5 - f6;
-		this.m11 = 1.0F - f6 - f4;
-		this.m22 = 1.0F - f4 - f5;
+		double f = quaternionIn.x;
+		double f1 = quaternionIn.y;
+		double f2 = quaternionIn.z;
+		double f3 = quaternionIn.w;
+		double f4 = 2.0 * f * f;
+		double f5 = 2.0 * f1 * f1;
+		double f6 = 2.0 * f2 * f2;
+		this.m00 = 1.0 - f5 - f6;
+		this.m11 = 1.0 - f6 - f4;
+		this.m22 = 1.0 - f4 - f5;
 		double f7 = f * f1;
 		double f8 = f1 * f2;
 		double f9 = f2 * f;
 		double f10 = f * f3;
 		double f11 = f1 * f3;
 		double f12 = f2 * f3;
-		this.m10 = 2.0F * (f7 + f12);
-		this.m01 = 2.0F * (f7 - f12);
-		this.m20 = 2.0F * (f9 - f11);
-		this.m02 = 2.0F * (f9 + f11);
-		this.m21 = 2.0F * (f8 + f10);
-		this.m12 = 2.0F * (f8 - f10);
+		this.m10 = 2.0 * (f7 + f12);
+		this.m01 = 2.0 * (f7 - f12);
+		this.m20 = 2.0 * (f9 - f11);
+		this.m02 = 2.0 * (f9 + f11);
+		this.m21 = 2.0 * (f8 + f10);
+		this.m12 = 2.0 * (f8 - f10);
 	}
 
-	public void transpose() {
+	public Matrix3 transpose() {
 		double f = this.m01;
 		this.m01 = this.m10;
 		this.m10 = f;
@@ -51,7 +66,9 @@ public class Matrix3 {
 		f = this.m12;
 		this.m12 = this.m21;
 		this.m21 = f;
+		return this;
 	}
+
 
 	public boolean equals(Object p_equals_1_) {
 		if (this == p_equals_1_) {
@@ -82,7 +99,7 @@ public class Matrix3 {
 
 	public String toString() {
 		StringBuilder stringbuilder = new StringBuilder();
-		stringbuilder.append("Matrix3d:\n");
+		stringbuilder.append("Matrix3:\n");
 		stringbuilder.append(this.m00);
 		stringbuilder.append(" ");
 		stringbuilder.append(this.m01);
@@ -149,7 +166,7 @@ public class Matrix3 {
 		}
 	}
 
-	public void mul(Matrix3 m2) {
+	public Matrix3 mul(Matrix3 m2) {
 		double f = this.m00 * m2.m00 + this.m01 * m2.m10 + this.m02 * m2.m20;
 		double f1 = this.m00 * m2.m01 + this.m01 * m2.m11 + this.m02 * m2.m21;
 		double f2 = this.m00 * m2.m02 + this.m01 * m2.m12 + this.m02 * m2.m22;
@@ -168,10 +185,11 @@ public class Matrix3 {
 		this.m20 = f6;
 		this.m21 = f7;
 		this.m22 = f8;
+		return this;
 	}
 
-	public void mul(Quat q) {
-		this.mul(new Matrix3(q));
+	public Matrix3 mul(Quat q) {
+		return this.mul(new Matrix3(q));
 	}
 
 	public void mul(double scale) {
@@ -192,11 +210,11 @@ public class Matrix3 {
 		double pitch = 0;
 		double roll = 0;
 		// Assuming the angles are in radians.
-		if (m10 > 0.9999) { // singularity at north pole
+		if (m10 > 0.999999) { // singularity at north pole
 			yaw = Math.atan2(m02, m22);
 			pitch = Math.PI / 2;
 			roll = 0;
-		} else if (m10 < -0.9999) { // singularity at south pole
+		} else if (m10 < -0.999999) { // singularity at south pole
 			yaw = Math.atan2(m02, m22);
 			pitch = -Math.PI / 2;
 			roll = 0;
@@ -208,21 +226,65 @@ public class Matrix3 {
 
 		return new Vec3(yaw, pitch, roll);
 	}
+	/*
+	
+		double f = quaternionIn.x;
+		double f1 = quaternionIn.y;
+		double f2 = quaternionIn.z;
+		double f3 = quaternionIn.w;
+		double f4 = 2.0 * f * f;
+		double f5 = 2.0 * f1 * f1;
+		double f6 = 2.0 * f2 * f2;
+		this.m00 = 1.0 - f5 - f6;
+		this.m11 = 1.0 - f6 - f4;
+		double f7 = f * f1;
+		double f8 = f1 * f2;
+		double f9 = f2 * f;
+		double f10 = f * f3;
+		double f11 = f1 * f3;
+		double f12 = f2 * f3;
+		this.m10 = 2.0 * (f7 + f12);
+		this.m20 = 2.0 * (f9 - f11);
+		this.m12 = 2.0 * (f8 - f10);
+	*/
 
 	// =====================================
 
-	public Matrix3f getMojang() {
-		Matrix3f m3f = new Matrix3f();
-		m3f.func_232605_a_(0, 0, (float) m00);
-		m3f.func_232605_a_(0, 1, (float) m01);
-		m3f.func_232605_a_(0, 2, (float) m02);
-		m3f.func_232605_a_(1, 0, (float) m10);
-		m3f.func_232605_a_(1, 1, (float) m11);
-		m3f.func_232605_a_(1, 2, (float) m12);
-		m3f.func_232605_a_(2, 0, (float) m20);
-		m3f.func_232605_a_(2, 1, (float) m21);
-		m3f.func_232605_a_(2, 2, (float) m22);
-		return m3f;
+	public Matrix3 copy() {
+		Matrix3 m3 = new Matrix3();
+		m3.m00 = this.m00;
+		m3.m01 = this.m01;
+		m3.m02 = this.m02;
+		m3.m10 = this.m10;
+		m3.m11 = this.m11;
+		m3.m12 = this.m12;
+		m3.m20 = this.m20;
+		m3.m21 = this.m21;
+		m3.m22 = this.m22;
+		return m3;
+	}
+
+	public Vec3[] asNormals() {
+		Vec3[] norms = new Vec3[3];
+		norms[0] = new Vec3(m00, m10, m20);
+		norms[1] = new Vec3(m01, m11, m21);
+		norms[2] = new Vec3(m02, m12, m22);
+		return norms;
+	}
+	
+	public Vec3 getZYXAngles(boolean degrees) {
+	
+		double m20sq = Math.sqrt( 1 - (m20 * m20));
+
+		double a = Math.atan2(m10, m00);
+		double b = Math.atan2(m20, m20sq);
+		double g = Math.atan2(m21, m22);
+
+		Vec3 vec3 = new Vec3(g, -b, a);
+
+		//System.out.println(m10 / m00);
+	
+		return degrees ? vec3.scale(180D / Math.PI) : vec3;
 	}
 
 }

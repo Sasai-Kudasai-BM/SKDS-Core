@@ -5,11 +5,10 @@ import net.skds.core.util.blockupdate.WWSGlobal;
 public interface IWWS {
 	public void tickIn();
 	public void tickOut();
-	public void close();
-	public WWSGlobal getG();
+	public void onClose();
+	public void onSave();
+	public WWSGlobal getGlob();
 
 	public void tickPreMTH();
 	public void tickPostMTH();
-	//public void fork();
-	//public void join() throws InterruptedException;
 }

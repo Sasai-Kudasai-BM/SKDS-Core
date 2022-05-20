@@ -2,44 +2,32 @@ package net.skds.core;
 
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.ServerTickEvent;
-import net.minecraftforge.event.TickEvent.WorldTickEvent;
-import net.minecraftforge.event.world.ChunkDataEvent;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.skds.core.api.IWorldExtended;
+import net.skds.core.config.UniversalJsonReader;
 import net.skds.core.util.blockupdate.BlockUpdataer;
 import net.skds.core.util.blockupdate.WWSGlobal;
-import net.skds.core.util.configs.UniversalJsonReader;
 import net.skds.core.util.data.capability.ChunkCapability;
 import net.skds.core.util.data.capability.ChunkCapabilityData;
 
-public class Events {
+public class Hooks {
 
 	private static long inTickTime = System.nanoTime();
 	private static int lastTickTime = 0;
 
-	//@SubscribeEvent
+	//
 	//public void debug(OnCSLoadEvent e) {
 	//	e.data.addData(new ExampleData());
 	//}
 
-	@SubscribeEvent
+	
 	public void onChunkSave(ChunkDataEvent.Save e) {
 	}
 
-	@SubscribeEvent
+	
 	public void onChunkLoad(ChunkDataEvent.Load e) {
 	}
 
-	@SubscribeEvent
+	
 	public void onChunkLoad(ChunkEvent.Load e) {
 		//System.out.println(e.getChunk().getPos());
 		//if (!e.getWorld().isRemote()) {
@@ -61,7 +49,7 @@ public class Events {
 		//}
 	}
 
-	@SubscribeEvent
+	
 	public void onChunkUnload(ChunkEvent.Unload e) {
 		//if (e.getWorld().isRemote()) {
 		//	ChunkPos cp = e.getChunk().getPos();
@@ -69,7 +57,7 @@ public class Events {
 		//}
 	}
 
-	@SubscribeEvent
+	
 	public void onChunkWatch(ChunkWatchEvent.Watch e) {
 		//ChunkPos cp = e.getPos();
 		//Chunk chunk = (Chunk) e.getWorld().getChunkProvider().getChunkNow(cp.x, cp.z);
@@ -82,16 +70,16 @@ public class Events {
 		//}
 	}
 
-	@SubscribeEvent
+	
 	public void attachCCap(AttachCapabilitiesEvent<Chunk> e) {
 		e.addCapability(ChunkCapability.KEY, new ChunkCapabilityData(e.getObject()));
 	}
 
-	@SubscribeEvent
+	
 	public void onWorldUnload(WorldEvent.Unload e) {
 	}
 
-	@SubscribeEvent
+	
 	public void onWorldLoad(WorldEvent.Load e) {
 
 		World w = (World) e.getWorld();
@@ -100,7 +88,7 @@ public class Events {
 
 	}
 
-	@SubscribeEvent
+	
 	public void tick(WorldTickEvent event) {
 
 		boolean in = event.phase == Phase.START;
@@ -117,7 +105,7 @@ public class Events {
 		}
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	(priority = EventPriority.HIGHEST)
 	public void tick(ServerTickEvent event) {
 		boolean in = event.phase == Phase.START;
 		if (in) {
@@ -129,12 +117,12 @@ public class Events {
 		}
 	}
 
-	@SubscribeEvent
+	
 	public void addReloadListenerEvent(AddReloadListenerEvent e) {
 		UniversalJsonReader.DATA_PACK_RREGISTRIES = e.getDataPackRegistries();
 	}
 
-	@SubscribeEvent
+	
 	public void onServerStart(FMLServerStartedEvent e) {
 		SKDSCore.SERVER = e.getServer();
 	}

@@ -5,43 +5,46 @@ import java.util.Set;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.Material;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.IChunk;
-import net.skds.core.api.IServerChunkProvider;
 
 public class TurboWorldReader {
+
+	public final int minY;
+	public final int maxY;
+	public final int sections;
 
 	public final BlockState nullreturnstate = Blocks.AIR.getDefaultState();
 	public final FluidState nullreturnFstate = Fluids.EMPTY.getDefaultState();
 	public final World world;
-	private IChunk chunkCash = null;
+	private Chunk chunkCash = null;
 	private long chunkPosCash = 0;
 	private boolean newChunkCash = true;
 	
 	public final boolean isClient;
 
 	public TurboWorldReader(World world) {
-		this.isClient = world.isRemote;
+		this.isClient = world.isClient;
 		this.world = world;
+		this.minY = world.getBottomY();
+		this.maxY = minY + world.getHeight();
+		this.sections = world.getHeight() >> 4;
 	}
 
-	public IChunk getIChunk(int blockX, int blockZ) {
-		long lpos = ChunkPos.asLong(blockX >> 4, blockZ >> 4);
+	public Chunk getIChunk(int blockX, int blockZ) {
+		long lpos = ChunkPos.toLong(blockX >> 4, blockZ >> 4);
 		if (newChunkCash || lpos != chunkPosCash) {
 			newChunkCash = false;
-			AbstractChunkProvider prov = world.getChunkProvider();
+			var manager = world.getChunkManager();
 			if (isClient) {
-				chunkCash = prov.getChunkNow(blockX >> 4, blockZ >> 4);
+				chunkCash = ((ServerChunkManager) manager).threadedAnvilChunkStorage.ge prov.getChunkNow(blockX >> 4, blockZ >> 4);
 			} else {
 				chunkCash = ((IServerChunkProvider) prov).getCustomChunk(lpos);
 			}

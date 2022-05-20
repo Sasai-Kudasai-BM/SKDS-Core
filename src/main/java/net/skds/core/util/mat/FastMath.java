@@ -1,4 +1,5 @@
 package net.skds.core.util.mat;
+
 public class FastMath {
 
 	public static double modInt(double a, int b) {
@@ -26,11 +27,38 @@ public class FastMath {
 		return sin(x + 90);
 	}
 
-	public static double aprSinDegr(double x) {
+	private static double aprSinDegr(double x) {
 		x = modInt(x, 360);
 		if (x < 0) {
 			x = 360 + x;
 		}
 		return x;
 	}
+
+    public static double wrapDegrees(double degrees) {
+        double d = modInt(degrees, 360);
+        if (d >= 180.0) {
+            d -= 360.0;
+        }
+        if (d < -180.0) {
+            d += 360.0;
+        }
+        return d;
+    }
+
+    public static double clamp(double value, double min, double max) {
+        if (value < min) {
+            return min;
+        }
+        if (value > max) {
+            return max;
+        }
+        return value;
+    }
+	
+    public static double clampAngle(double start, double end, double speed) {
+        double a = wrapDegrees(end - start);
+        a = clamp(a, -speed, speed);
+        return a;
+    }
 }

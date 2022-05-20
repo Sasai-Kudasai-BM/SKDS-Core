@@ -1,4 +1,4 @@
-package net.skds.core.api.multithreading;
+package net.skds.core.multithreading;
 
 import net.minecraft.world.World;
 

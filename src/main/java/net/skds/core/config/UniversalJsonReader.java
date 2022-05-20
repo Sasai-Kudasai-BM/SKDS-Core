@@ -1,4 +1,4 @@
-package net.skds.core.util.configs;
+package net.skds.core.config;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -16,40 +16,41 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 
-import net.minecraft.resources.DataPackRegistries;
-import net.skds.core.api.IJsonConfigUnit;
+import net.skds.core.SKDSCore;
+
 import static net.skds.core.SKDSCore.LOGGER;
 
 public class UniversalJsonReader {
 
-	public static DataPackRegistries DATA_PACK_RREGISTRIES = null;
-
-	public DataPackRegistries getDPR() {
-		return DATA_PACK_RREGISTRIES;
-	}
 
 	public static boolean read(IJsonConfigUnit unit) {
-		File configDir = new File(unit.getPath());
+		File pat = new File("config/" + unit.getModID());
+		File configFile = new File(pat, unit.getPath());
 		try {
-			configDir.mkdirs();
+			pat.mkdir();
 			
-			File readFile = new File(configDir, unit.getFormatedName());
-			boolean exsists = readFile.exists();
-			if (!exsists) {
-				create(unit);
+			boolean exsists = configFile.exists();
+
+			if (exsists && configFile.isDirectory()) {
+				configFile.delete();
 			}
 
-			if (!interpret(unit, readFile)) {
+			if (!exsists) {
+				create(unit, configFile);
+			}
+
+			if (!interpret(unit, configFile)) {
 				if (!exsists) {
 					return false;
 				}
-				create(unit);
-				if (!interpret(unit, readFile)) {
+				create(unit, configFile);
+				if (!interpret(unit, configFile)) {
 					return false;
 				}
 			}
 			
 		} catch (Exception e) {
+			LOGGER.error("Config error! ", e);
 			return false;
 		}
 		return true;
@@ -78,10 +79,10 @@ public class UniversalJsonReader {
 		try {
 			jsonobject = GSON.getAdapter(JsonObject.class).read(jsonReader);
 		} catch (IOException e) {
-			LOGGER.error("Empty or invalid config file! " + unit.getFormatedName());
+			LOGGER.error("Empty or invalid config file! " + unit.getPath());
 			inputStream.close();
 
-			create(unit);
+			create(unit, reading);
 			inputStream = new FileInputStream(reading);
 			r = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 			jsonReader = new JsonReader(r);
@@ -91,7 +92,7 @@ public class UniversalJsonReader {
 		r.close();
 		jsonReader.close();
 
-		return unit.apply(jsonobject);
+		return unit.apply(new JsonConveyor(jsonobject));
 	}
 
 	private static boolean interpretResource(IJsonConfigUnit unit, InputStream inputStream) throws IOException {
@@ -103,7 +104,7 @@ public class UniversalJsonReader {
 		try {
 			jsonobject = GSON.getAdapter(JsonObject.class).read(jsonReader);
 		} catch (IOException e) {
-			LOGGER.error("Empty or invalid config data file! " + unit.getFormatedName());	
+			LOGGER.error("Empty or invalid config data file! " + unit.getPath());	
 			r.close();
 			jsonReader.close();
 			return false;	
@@ -111,30 +112,31 @@ public class UniversalJsonReader {
 		r.close();
 		jsonReader.close();
 
-		return unit.apply(jsonobject);
+		return unit.apply(new JsonConveyor(jsonobject));
 	}
 
-	private static boolean create(IJsonConfigUnit unit) throws IOException {
-		BufferedInputStream is = new BufferedInputStream(unit.getClass().getClassLoader().getResourceAsStream(unit.getJarPath() + "/" + unit.getFormatedName()));
+	private static boolean create(IJsonConfigUnit unit, File toCreate) throws IOException {
 
-		File configFile = new File(unit.getPath(), unit.getFormatedName());
-		if (configFile.exists()) {
-			backup(unit);
+		InputStream is = unit.getClass().getClassLoader().getResourceAsStream(SKDSCore.MOD_ID + "/configs/" + unit.getPath());
+		BufferedInputStream bis = new BufferedInputStream(is);
+
+		if (toCreate.exists()) {
+			backup(toCreate);
 		}
-		Files.copy(is, configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(bis, toCreate.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		is.close();
 		return true;
 	}
 
-	private static boolean backup(IJsonConfigUnit unit) throws IOException {
-		File configFile = new File(unit.getPath(), unit.getFormatedName());
-		File backupFile = new File(unit.getPath(), unit.getName() + "-backup." + unit.getFormat());
+	private static boolean backup(File file) throws IOException {
+		File backupFile = new File(file.toPath() + ".backup");
 		int index = 0;
 		while (backupFile.exists()) {
 			index++;			
-			backupFile = new File(unit.getPath(), unit.getName() + "-backup (" + index + ") ." + unit.getFormat());
+			backupFile = new File(file.toPath() + ".backup[" + index + "]");
 		}
-		LOGGER.error("Creating config backup" + unit.getFormatedName());
-		Files.copy(configFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		LOGGER.warn("Creating config backup: " + backupFile.toString());
+		Files.copy(file.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		return true;
 	}
 }

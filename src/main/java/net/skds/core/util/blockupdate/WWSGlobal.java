@@ -12,8 +12,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.skds.core.api.IWWS;
 import net.skds.core.api.IWorldExtended;
-import net.skds.core.api.multithreading.ITaskRunnable;
 import net.skds.core.events.OnWWSAttachEvent;
+import net.skds.core.multithreading.ITaskRunnable;
 import net.skds.core.util.Class2InstanceMap;
 import net.skds.core.util.data.ChunkSectionAdditionalData;
 

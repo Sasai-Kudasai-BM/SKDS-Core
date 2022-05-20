@@ -16,7 +16,7 @@ import net.minecraft.world.server.ChunkHolder;
 import net.minecraft.world.server.ServerChunkProvider;
 import net.minecraft.world.server.ServerWorld;
 import net.skds.core.api.IServerChunkProvider;
-import net.skds.core.api.multithreading.ISKDSThread;
+import net.skds.core.multithreading.ISKDSThread;
 
 @Mixin(value = { ServerChunkProvider.class })
 public abstract class ServerChunkProviderMixin implements IServerChunkProvider {
