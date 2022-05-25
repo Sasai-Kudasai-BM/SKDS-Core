@@ -2,7 +2,21 @@ package net.skds.core.util;
 
 import java.util.ArrayList;
 
-public class Cycler<T> {
+import net.skds.core.multithreading.ITaskRunnable;
+
+public class Cycler<T extends ITaskRunnable> {
+
+	/* TODO
+	private class CyclerEntry {
+		private final T t;
+		private final float wei;
+		private float timer = 0;
+		CyclerEntry(T t) {
+			this.t = t;
+			this.wei = t.getWeight();
+		}
+	}
+	*/
 
 	private ArrayList<T> list;
 	private int index = 0;

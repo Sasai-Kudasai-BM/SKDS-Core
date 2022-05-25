@@ -14,6 +14,10 @@ public class SKDSUtils {
 		}
 	}
 
+	public static long microTime() {
+		return System.nanoTime() / 1000;
+	}
+
 	/*
 	private static final long[] BITS = new long[64];
 	

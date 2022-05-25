@@ -7,7 +7,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.BooleanSupplier;
 
+import net.skds.core.util.SKDSUtils;
+
 public class ParallelExecutor implements AutoCloseable {
+
+	private long stopTime;
 
 	private BooleanSupplier task;
 	private final int threadCount;
@@ -27,7 +31,8 @@ public class ParallelExecutor implements AutoCloseable {
 		}
 	}
 
-	public void execute(BooleanSupplier task) {
+	public void execute(BooleanSupplier task, long timeout) {
+		this.stopTime = SKDSUtils.microTime() + timeout;
 		this.task = task;
 		this.latch = new CountDownLatch(threadCount);
 		try {
@@ -64,7 +69,7 @@ public class ParallelExecutor implements AutoCloseable {
 			LockSupport.park();
 			while (alive) {
 				try {
-					while (task.getAsBoolean());
+					while (hasTimeLeft() && task.getAsBoolean());
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
@@ -77,6 +82,10 @@ public class ParallelExecutor implements AutoCloseable {
 		@Override
 		public int getIndex() {
 			return index;
+		}
+
+		private boolean hasTimeLeft() {
+			return SKDSUtils.microTime() < stopTime;
 		}
 	}
 

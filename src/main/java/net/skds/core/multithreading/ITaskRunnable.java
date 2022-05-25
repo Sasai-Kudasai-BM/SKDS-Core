@@ -1,10 +1,8 @@
 package net.skds.core.multithreading;
 
-import net.minecraft.world.World;
-
 public interface ITaskRunnable extends Runnable {
 	
-	public boolean revoke(World w);
+	public boolean revoke();
 	public double getPriority();
-	public int getSubPriority();
+	public float getWeight();
 }

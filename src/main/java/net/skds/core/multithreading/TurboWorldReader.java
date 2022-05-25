@@ -6,14 +6,17 @@ import java.util.Set;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.WorldChunk.CreationType;
+import net.skds.core.mixinglue.ServerChunkManagerGlue;
 
 public class TurboWorldReader {
 
@@ -24,10 +27,9 @@ public class TurboWorldReader {
 	public final BlockState nullreturnstate = Blocks.AIR.getDefaultState();
 	public final FluidState nullreturnFstate = Fluids.EMPTY.getDefaultState();
 	public final World world;
-	private Chunk chunkCash = null;
+	private WorldChunk chunkCash = null;
 	private long chunkPosCash = 0;
-	private boolean newChunkCash = true;
-	
+
 	public final boolean isClient;
 
 	public TurboWorldReader(World world) {
@@ -39,34 +41,34 @@ public class TurboWorldReader {
 	}
 
 	public Chunk getIChunk(int blockX, int blockZ) {
-		long lpos = ChunkPos.toLong(blockX >> 4, blockZ >> 4);
-		if (newChunkCash || lpos != chunkPosCash) {
-			newChunkCash = false;
-			var manager = world.getChunkManager();
-			if (isClient) {
-				chunkCash = ((ServerChunkManager) manager).threadedAnvilChunkStorage.ge prov.getChunkNow(blockX >> 4, blockZ >> 4);
-			} else {
-				chunkCash = ((IServerChunkProvider) prov).getCustomChunk(lpos);
-			}
+		Chunk c;
+		var manager = world.getChunkManager();
+		if (!isClient) {
+			c = ((ServerChunkManagerGlue) manager).getChunkSKDS(ChunkPos.toLong(blockX >> 4, blockZ >> 4));
+		} else {
+			c = manager.getWorldChunk(blockX >> 4, blockZ >> 4);
+		}
+		return c;
+	}
+
+	public WorldChunk getChunk(BlockPos pos) {
+
+		long lpos = ChunkPos.toLong(pos.getX() >> 4, pos.getZ() >> 4);
+		if (chunkCash == null || lpos != chunkPosCash) {
 			chunkPosCash = lpos;
+			Chunk cc = getIChunk(pos.getX() >> 4, pos.getZ() >> 4);
+
+			if (cc != null && cc instanceof WorldChunk wc) {
+				chunkCash = wc;
+			}
 		}
+
 		return chunkCash;
-	}
 
-	public IChunk getIChunk(BlockPos pos) {
-		return getIChunk(pos.getX(), pos.getZ());
-	}
-
-	public Chunk getChunk(BlockPos pos) {
-		IChunk iChunk = getIChunk(pos);
-		if (iChunk != null && iChunk instanceof Chunk) {
-			return (Chunk) iChunk;
-		}
-		return null;
 	}
 
 	public BlockState getBlockState(BlockPos pos) {
-		IChunk chunk = getIChunk(pos);
+		WorldChunk chunk = getChunk(pos);
 		if (chunk == null) {
 			return nullreturnstate;
 		}
@@ -79,7 +81,7 @@ public class TurboWorldReader {
 	}
 
 	public FluidState getFluidState(BlockPos pos) {
-		IChunk chunk = getIChunk(pos);
+		WorldChunk chunk = getChunk(pos);
 		if (chunk == null) {
 			return nullreturnFstate;
 		}
@@ -91,30 +93,12 @@ public class TurboWorldReader {
 		return ssss;
 	}
 
-	public ChunkSection getChunkSection(BlockPos pos, boolean create) {
-		Chunk chunk = getChunk(pos);
-		if (chunk == null) {
-			return null;
-		}
-		int y = pos.getY();
-		if (y < 0 || y > 255) {
-			return null;
-		}
-		ChunkSection[] chunksections = chunk.getSections();
-		ChunkSection sec = chunksections[y >> 4];
-		if (sec == null && create) {
-			sec = new ChunkSection(y >> 4 << 4);			
-			chunksections[y >> 4] = sec;
-		}
-		return sec;
-	}
-
-	public TileEntity getTileEntity(BlockPos pos) {
-		Chunk ch = getChunk(pos);
-		TileEntity tileentity = null;
+	public BlockEntity getTileEntity(BlockPos pos) {
+		WorldChunk ch = getChunk(pos);
+		BlockEntity tileentity = null;
 
 		if (ch != null) {
-			tileentity = ch.getTileEntity(pos, Chunk.CreateEntityType.IMMEDIATE);
+			tileentity = ch.getBlockEntity(pos, CreationType.IMMEDIATE);
 		}
 
 		return tileentity;
@@ -122,7 +106,7 @@ public class TurboWorldReader {
 
 	// STATIC
 
-	public static Set<BlockPos> getBlockPoses(AxisAlignedBB aabb) {
+	public static Set<BlockPos> getBlockPoses(Box aabb) {
 		int x0 = (int) Math.floor(aabb.minX);
 		int y0 = (int) Math.floor(aabb.minY);
 		int z0 = (int) Math.floor(aabb.minZ);

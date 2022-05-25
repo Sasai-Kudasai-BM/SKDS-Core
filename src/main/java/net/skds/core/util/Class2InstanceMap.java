@@ -5,8 +5,6 @@ import java.util.function.Consumer;
 
 public class Class2InstanceMap<T> {
 
-	//private static final Object[] EMPTY = {};
-
 	private Object[] values = {};
 
 	public Class2InstanceMap() {

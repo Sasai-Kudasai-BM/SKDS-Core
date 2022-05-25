@@ -11,7 +11,7 @@ import net.minecraft.world.biome.BiomeContainer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.skds.core.util.data.capability.ChunkCapabilityData;
+import net.skds.core.util.data.ChunkData;
 
 @Mixin(Chunk.class)
 public class ChunkMixin {
@@ -19,6 +19,6 @@ public class ChunkMixin {
 	@OnlyIn(Dist.CLIENT)
 	@Inject(method = "read", at = @At("TAIL"))
 	void read(BiomeContainer biomeContainerIn, PacketBuffer packetBufferIn, CompoundNBT nbtIn, int availableSections, CallbackInfo ci) {
-		ChunkCapabilityData.apply((Chunk) (Object) this, dat -> dat.read(packetBufferIn));
+		ChunkData.apply((Chunk) (Object) this, dat -> dat.read(packetBufferIn));
 	}
 }
